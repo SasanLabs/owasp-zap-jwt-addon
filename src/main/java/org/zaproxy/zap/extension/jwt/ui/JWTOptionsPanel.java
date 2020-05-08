@@ -279,5 +279,4 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         jwtConfiguration.setEnableClientConfigurationScan(
                 enableClientConfigurationScanCheckBox.isSelected());
     }
-
 }
