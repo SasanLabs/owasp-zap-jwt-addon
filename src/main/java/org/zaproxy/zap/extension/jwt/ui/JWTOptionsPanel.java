@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.jwt.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -183,7 +184,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                         JWTI18n.getMessage("jwt.settings.rsa.header"),
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
+                        FontUtils.getFont(Font.BOLD, FontUtils.Size.standard),
                         java.awt.Color.black);
         rsaPanel.setBorder(rsaPanelBorder);
         JLabel lblTrustStorePathAttribute =
@@ -230,7 +231,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                         JWTI18n.getMessage("jwt.settings.general.header"),
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
+                        FontUtils.getFont(Font.BOLD, FontUtils.Size.standard),
                         java.awt.Color.black);
         generalSettingsPanel.setBorder(generalSettingsBorder);
         enableClientConfigurationScanCheckBox =
@@ -279,8 +280,4 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                 enableClientConfigurationScanCheckBox.isSelected());
     }
 
-    @Override
-    public String getHelpIndex() {
-        return "ui.dialogs.options.alert";
-    }
 }
