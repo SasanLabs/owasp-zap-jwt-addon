@@ -64,7 +64,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
     private String trustStorePassword;
     private JButton trustStoreFileChooserButton;
     private JTextField trustStoreFileChooserTextField;
-    private JCheckBox ignoreClientConfigurationScanCheckBox;
+    private JCheckBox enableClientConfigurationScanCheckBox;
 
     /** Custom JWT configuration */
     public JWTOptionsPanel() {
@@ -217,10 +217,10 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         JLabel lblGeneralSettings = new JLabel(JWTI18n.getMessage("jwt.settings.general.header"));
         settingsPanel.add(lblGeneralSettings, gridBagConstraints);
         gridBagConstraints.gridy++;
-        ignoreClientConfigurationScanCheckBox =
+        enableClientConfigurationScanCheckBox =
                 new JCheckBox(
-                        JWTI18n.getMessage("jwt.settings.general.ignoreClientSideScan.checkBox"));
-        settingsPanel.add(ignoreClientConfigurationScanCheckBox, gridBagConstraints);
+                        JWTI18n.getMessage("jwt.settings.general.enableClientSideScan.checkBox"));
+        settingsPanel.add(enableClientConfigurationScanCheckBox, gridBagConstraints);
     }
 
     /** Resets entire panel to default values. */
@@ -228,7 +228,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStorePasswordField.setText("");
         trustStoreFileChooserTextField.setText("");
         trustStorePassword = null;
-        ignoreClientConfigurationScanCheckBox.setSelected(false);
+        enableClientConfigurationScanCheckBox.setSelected(false);
         trustStorePath = "";
     }
 
@@ -244,8 +244,8 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                 ((OptionsParam) optionParams).getParamSet(JWTConfiguration.class);
         trustStorePath = jwtConfiguration.getTrustStorePath();
         trustStorePassword = jwtConfiguration.getTrustStorePassword();
-        ignoreClientConfigurationScanCheckBox.setSelected(
-                jwtConfiguration.isIgnoreClientConfigurationScan());
+        enableClientConfigurationScanCheckBox.setSelected(
+                jwtConfiguration.isEnableClientConfigurationScan());
         this.populateOptionsPanel();
     }
 
@@ -258,7 +258,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                 ((OptionsParam) optionParams).getParamSet(JWTConfiguration.class);
         jwtConfiguration.setTrustStorePath(trustStorePath);
         jwtConfiguration.setTrustStorePassword(trustStorePassword);
-        jwtConfiguration.setIgnoreClientConfigurationScan(
-                ignoreClientConfigurationScanCheckBox.isSelected());
+        jwtConfiguration.setEnableClientConfigurationScan(
+                enableClientConfigurationScanCheckBox.isSelected());
     }
 }
