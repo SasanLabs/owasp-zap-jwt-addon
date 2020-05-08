@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.jwt.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -31,7 +29,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -82,7 +79,6 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                         settingsPanel,
                         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        settingsScrollPane.setPreferredSize(new Dimension(300, 300));
         this.add(settingsScrollPane, BorderLayout.NORTH);
         footerPanel = new JPanel();
         this.add(footerPanel, BorderLayout.SOUTH);
@@ -93,9 +89,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
     }
 
     private void init(JPanel settingsPanel) {
-        settingsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         settingsPanel.add(this.rsaSettingsSection());
-        settingsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         settingsPanel.add(this.generalSettingsSection());
         footerPanel.add(getResetButton());
     }
@@ -184,8 +178,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                         JWTI18n.getMessage("jwt.settings.rsa.header"),
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(Font.BOLD, FontUtils.Size.standard),
-                        java.awt.Color.black);
+                        FontUtils.getFont(FontUtils.Size.standard));
         rsaPanel.setBorder(rsaPanelBorder);
         JLabel lblTrustStorePathAttribute =
                 new JLabel(JWTI18n.getMessage("jwt.settings.rsa.trustStorePath"));
@@ -224,15 +217,13 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
     private JPanel generalSettingsSection() {
         JPanel generalSettingsPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        generalSettingsPanel.setSize(generalSettingsPanel.getPreferredSize());
         TitledBorder generalSettingsBorder =
                 BorderFactory.createTitledBorder(
                         null,
                         JWTI18n.getMessage("jwt.settings.general.header"),
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(Font.BOLD, FontUtils.Size.standard),
-                        java.awt.Color.black);
+                        FontUtils.getFont(FontUtils.Size.standard));
         generalSettingsPanel.setBorder(generalSettingsBorder);
         enableClientConfigurationScanCheckBox =
                 new JCheckBox(
