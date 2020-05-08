@@ -2,7 +2,7 @@
 
 This Project contains the JWT Scanner and JWT Fuzzer addon used for finding JWT related vulnerabilities.
 
-# Why this addon is needed
+## Why this addon is needed
 With the popularity of JSON Web Tokens there comes the need to secure them so that they are not misused because of the bad configuration or older libraries or buggy implementations. So JWT Scanner Addon is used to find such vulnerabilities and this document explains on how to use JWT Scanner Addon.
 
 ## Configuration
@@ -34,10 +34,10 @@ Till now this addon contains only JWT Scanner for finding vulnerabilities and ne
 1. JWT fuzzer will be helpful for finding vulnerabilities like SQL Injection/SSRF in JWT Field values.
 2. Bruteforce attack will be helpful in finding vulnerabilities related to Secret Keys which are used for signing the tokens.
 
-# Contributing guidelines
+## Contributing guidelines
 Contributing guidelines are same as [Zaproxy](https://github.com/zaproxy/zaproxy).
 
-# Contact Us
+## Contact Us
 For any Queries/Bugs or Enhancement please raise an issue in this repository or [Zaproxy](https://github.com/zaproxy/zaproxy).
 For any other kind of issues please send an email to preetkaran20@gmail.com
 
