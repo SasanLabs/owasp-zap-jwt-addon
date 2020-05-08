@@ -49,8 +49,8 @@ import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 public class JWTActiveScanner extends AbstractAppParamPlugin {
 
     private static final int PLUGIN_ID = 1001;
-    private static final String NAME = JWTI18n.getMessage("ascanrules.jwt.name");
-    private static final String DESCRIPTION = JWTI18n.getMessage("ascanrules.jwt.description");
+    private static final String NAME = JWTI18n.getMessage("jwt.scanner.name");
+    private static final String DESCRIPTION = JWTI18n.getMessage("jwt.scanner.description");
     private static final String SOLUTION = JWTI18n.getMessage("jwt.scanner.soln");
     private static final String REFERENCE = JWTI18n.getMessage("jwt.scanner.refs");
     private static final Logger LOGGER = Logger.getLogger(JWTActiveScanner.class);
@@ -104,7 +104,7 @@ public class JWTActiveScanner extends AbstractAppParamPlugin {
             return;
         }
 
-        if (!JWTConfiguration.getInstance().isIgnoreClientConfigurationScan()) {
+        if (JWTConfiguration.getInstance().isEnableClientConfigurationScan()) {
             if (performAttackClientSideConfigurations(msg, param)) {
                 return;
             }

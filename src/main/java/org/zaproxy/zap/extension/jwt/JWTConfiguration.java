@@ -37,12 +37,12 @@ public class JWTConfiguration extends AbstractParam {
 
     private static final String PARAM_TRUST_STORE_PATH = PARAM_BASE_KEY + ".trustStorePath";
     private static final String PARAM_TRUST_STORE_PASSWORD = PARAM_BASE_KEY + ".trustStorePassword";
-    private static final String PARAM_IGNORE_CLIENT_CONFIGURATION_SCAN =
-            PARAM_BASE_KEY + ".ignoreClientConfigurationScan";
+    private static final String PARAM_ENABLE_CLIENT_CONFIGURATION_SCAN =
+            PARAM_BASE_KEY + ".enableClientConfigurationScan";
 
     private String trustStorePath;
     private String trustStorePassword;
-    private boolean ignoreClientConfigurationScan;
+    private boolean enableClientConfigurationScan;
     private static volatile JWTConfiguration jwtConfiguration;
 
     private JWTConfiguration() {}
@@ -76,21 +76,21 @@ public class JWTConfiguration extends AbstractParam {
         this.getConfig().setProperty(PARAM_TRUST_STORE_PASSWORD, trustStorePassword);
     }
 
-    public boolean isIgnoreClientConfigurationScan() {
-        return ignoreClientConfigurationScan;
+    public boolean isEnableClientConfigurationScan() {
+        return enableClientConfigurationScan;
     }
 
-    public void setIgnoreClientConfigurationScan(boolean ignoreClientConfigurationScan) {
-        this.ignoreClientConfigurationScan = ignoreClientConfigurationScan;
+    public void setEnableClientConfigurationScan(boolean enableClientSideConfiguration) {
+        this.enableClientConfigurationScan = enableClientSideConfiguration;
         this.getConfig()
-                .setProperty(PARAM_IGNORE_CLIENT_CONFIGURATION_SCAN, ignoreClientConfigurationScan);
+                .setProperty(PARAM_ENABLE_CLIENT_CONFIGURATION_SCAN, enableClientSideConfiguration);
     }
 
     @Override
     protected void parse() {
         this.setTrustStorePath(getConfig().getString(PARAM_TRUST_STORE_PATH));
         this.setTrustStorePassword(getConfig().getString(PARAM_TRUST_STORE_PASSWORD));
-        this.setIgnoreClientConfigurationScan(
-                getBoolean(PARAM_IGNORE_CLIENT_CONFIGURATION_SCAN, false));
+        this.setEnableClientConfigurationScan(
+                getBoolean(PARAM_ENABLE_CLIENT_CONFIGURATION_SCAN, false));
     }
 }

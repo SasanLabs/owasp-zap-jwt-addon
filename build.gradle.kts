@@ -30,13 +30,13 @@ spotless {
 
 tasks.withType<JavaCompile>().configureEach { options.encoding = "utf-8" }
 
-version = "1"
-description = "Detect JWT requests and scan them to find the vulnerabilities"
+version = "1.0.0"
+description = "Detect JWT requests and scan them to find related vulnerabilities"
 
 zapAddOn {
     addOnName.set("JWT Extension")
     zapVersion.set("2.9.0")
-    addOnStatus.set(AddOnStatus.BETA)
+    addOnStatus.set(AddOnStatus.ALPHA)
 
     manifest {
         author.set("KSASAN preetkaran20@gmail.com")
