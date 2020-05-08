@@ -3,17 +3,17 @@
 This Project contains the JWT Scanner and JWT Fuzzer addon used for finding JWT related vulnerabilities.
 
 ## Why this addon is needed
-With the popularity of JSON Web Tokens there comes the need to secure them so that they are not misused because of the bad configuration or older libraries or buggy implementations. So JWT Scanner Addon is used to find such vulnerabilities and this document explains on how to use JWT Scanner Addon.
+With the popularity of JSON Web Tokens there comes the need to secure them so that they are not misused because of the bad configuration or older libraries or buggy implementations. So Owasp ZAP JWT Addon is used to find such vulnerabilities and this document explains on how to use this Addon.
 
 ## Configuration
-As JWT Scanner runs with Active Scanner so most of the configurations are same as Active Scanner but there are certain configurations which are specific for JWT Scanner.
-Under Options tab you will find JWT settings section as shown below:
-![JWT-Settings](./docs/images/jwt-options-panel.png)
+As we have added some Scanner rules related to JWT so those scanning rules runs with Active Scanner so most of the configurations are same as Active Scanner but there are certain configurations which are specific for JWT Scanner.
+Under Options tab you will find JWT section as shown below:
+![JWT](./docs/images/jwt-options-panel.png)
 
 ### Explanation
 In case the application which you are trying to scan is using RSA or more specifically RS* algorithm then please mention the public certificate TrustStore path and TrustStore password. These fields are used to find certain vulnerabilities related to RS* based JWT's.
 
-Ignore Client Configuration Scan flag is used to ignore client side validations like JWT token is sent to the browser in an insecure way or non-recommended way.
+Enable Client Configuration Scan flag is used to enable client side validations like JWT token is sent to the browser in an insecure way or non-recommended way.
 
 ### Vulnerabilities covered by the scanner:
 JWT scanner finds vulnerability in Client/Browser as well as Server/Library side implementations.
