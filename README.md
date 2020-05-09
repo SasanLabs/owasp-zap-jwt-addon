@@ -3,7 +3,7 @@
 This Project contains the JWT Scanner and JWT Fuzzer addon used for finding JWT related vulnerabilities.
 
 ## Why this addon is needed
-With the popularity of JSON Web Tokens (JWTs)there comes the need to secure their use so that they are not misused because of bad configuration, older libraries, or buggy implementations. So the JWT Scanner Addon is used to find such vulnerabilities and this blog explains on how to use it.
+With the popularity of JSON Web Tokens (JWTs)there comes the need to secure their use so that they are not misused because of bad configuration, older libraries, or buggy implementations. So the JWT Scanner Add-on is used to find such vulnerabilities and this blog explains on how to use it.
 
 ## Configuration
 As JWT add-on includes a rule for the Active Scanner but there are configuration details which are specific for the JWT add-on
@@ -13,7 +13,7 @@ Under ZAP's Options dialog you will find a JWT section as shown below:
 ### Explanation
 In case the application which you are trying to scan is using RSA or more specifically RS* algorithm then please configure the public certificate TrustStore path and TrustStore password. These fields are used to find certain vulnerabilities related to RS* based JWTs.
 
-Ignore Client Configuration Scan flag is used to ignore client side validations like JWT being sent to the browser in an insecure or non-recommended way.
+Enable Client Configuration Scan flag is used to enable client side validations like JWT being sent to the browser in an insecure or non-recommended way.
 
 ### Vulnerability Coverage
 The JWT add-on's scan rule attempts to identified vulnerabilities in both Client/Browser and Server/Library implementations.
