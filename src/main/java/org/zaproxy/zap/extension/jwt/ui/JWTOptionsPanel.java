@@ -20,16 +20,16 @@
 package org.zaproxy.zap.extension.jwt.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -39,11 +39,13 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.jwt.JWTConfiguration;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
+import org.zaproxy.zap.utils.FontUtils;
 
 /**
  * JWT options panel for specifying settings which are used by {@code JWTActiveScanner} for finding
@@ -58,7 +60,6 @@ public class JWTOptionsPanel extends AbstractParamPanel {
     private String trustStorePath;
     private JScrollPane settingsScrollPane;
     private JPanel footerPanel;
-    private JPanel settingsPanel;
     private JFileChooser trustStoreFileChooser;
     private JPasswordField trustStorePasswordField;
     private String trustStorePassword;
@@ -71,46 +72,26 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         super();
         this.setName(JWTI18n.getMessage("jwt.settings.title"));
         this.setLayout(new BorderLayout());
-        settingsPanel = new JPanel();
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
         settingsScrollPane =
                 new JScrollPane(
                         settingsPanel,
                         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        settingsScrollPane.setPreferredSize(new Dimension(300, 300));
         this.add(settingsScrollPane, BorderLayout.NORTH);
-        GridBagLayout gridBagLayout = new GridBagLayout();
-        settingsPanel.setLayout(gridBagLayout);
         footerPanel = new JPanel();
         this.add(footerPanel, BorderLayout.SOUTH);
         footerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
-
         this.addFileChooserTextField();
         this.trustStoreFileChooserButton();
-        init();
+        init(settingsPanel);
     }
 
-    private void init() {
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.fill = GridBagConstraints.NONE;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.weightx = 1.0D;
-        gridBagConstraints.weighty = 1.0D;
-
-        Insets insets = new Insets(0, 15, 0, 15);
-        gridBagConstraints.insets = insets;
-
-        this.rsaSettingsSection(gridBagConstraints);
-        gridBagConstraints.gridy++;
-        gridBagConstraints.gridx = 0;
-        this.generalSettingsSection(gridBagConstraints);
-
-        insets = new Insets(0, 15, 0, 15);
-        gridBagConstraints.insets = insets;
-        gridBagConstraints.gridy++;
-        footerPanel.add(getResetButton(), gridBagConstraints);
+    private void init(JPanel settingsPanel) {
+        settingsPanel.add(this.rsaSettingsSection());
+        settingsPanel.add(this.generalSettingsSection());
+        footerPanel.add(getResetButton());
     }
 
     private JButton getResetButton() {
@@ -174,25 +155,45 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStoreFileChooserTextField.setColumns(15);
     }
 
-    private void rsaSettingsSection(GridBagConstraints gridBagConstraints) {
-        JLabel lblRSABasedSettings = new JLabel(JWTI18n.getMessage("jwt.settings.rsa.header"));
-        settingsPanel.add(lblRSABasedSettings, gridBagConstraints);
-        gridBagConstraints.gridy++;
+    private GridBagConstraints getGridBagConstraints() {
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.NONE;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.weightx = 1.0D;
+        gridBagConstraints.weighty = 1.0D;
+        return gridBagConstraints;
+    }
 
+    private JPanel rsaSettingsSection() {
+        JPanel rsaPanel = new JPanel();
+        rsaPanel.setSize(rsaPanel.getPreferredSize());
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        rsaPanel.setLayout(gridBagLayout);
+        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        TitledBorder rsaPanelBorder =
+                BorderFactory.createTitledBorder(
+                        null,
+                        JWTI18n.getMessage("jwt.settings.rsa.header"),
+                        TitledBorder.DEFAULT_JUSTIFICATION,
+                        TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard));
+        rsaPanel.setBorder(rsaPanelBorder);
         JLabel lblTrustStorePathAttribute =
                 new JLabel(JWTI18n.getMessage("jwt.settings.rsa.trustStorePath"));
-        settingsPanel.add(lblTrustStorePathAttribute, gridBagConstraints);
+        rsaPanel.add(lblTrustStorePathAttribute, gridBagConstraints);
         gridBagConstraints.gridx++;
 
-        settingsPanel.add(trustStoreFileChooserTextField, gridBagConstraints);
+        rsaPanel.add(trustStoreFileChooserTextField, gridBagConstraints);
         gridBagConstraints.gridx++;
-        settingsPanel.add(trustStoreFileChooserButton, gridBagConstraints);
+        rsaPanel.add(trustStoreFileChooserButton, gridBagConstraints);
 
         gridBagConstraints.gridy++;
         gridBagConstraints.gridx = 0;
         JLabel lblTrustStorePassword =
                 new JLabel(JWTI18n.getMessage("jwt.settings.rsa.trustStorePassword"));
-        settingsPanel.add(lblTrustStorePassword, gridBagConstraints);
+        rsaPanel.add(lblTrustStorePassword, gridBagConstraints);
 
         gridBagConstraints.gridx++;
         trustStorePasswordField = new JPasswordField();
@@ -210,17 +211,25 @@ public class JWTOptionsPanel extends AbstractParamPanel {
                     public void focusGained(FocusEvent e) {}
                 });
         lblTrustStorePassword.setLabelFor(trustStorePasswordField);
-        settingsPanel.add(trustStorePasswordField, gridBagConstraints);
+        rsaPanel.add(trustStorePasswordField, gridBagConstraints);
+        return rsaPanel;
     }
 
-    private void generalSettingsSection(GridBagConstraints gridBagConstraints) {
-        JLabel lblGeneralSettings = new JLabel(JWTI18n.getMessage("jwt.settings.general.header"));
-        settingsPanel.add(lblGeneralSettings, gridBagConstraints);
-        gridBagConstraints.gridy++;
+    private JPanel generalSettingsSection() {
+        JPanel generalSettingsPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        TitledBorder generalSettingsBorder =
+                BorderFactory.createTitledBorder(
+                        null,
+                        JWTI18n.getMessage("jwt.settings.general.header"),
+                        TitledBorder.DEFAULT_JUSTIFICATION,
+                        TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard));
+        generalSettingsPanel.setBorder(generalSettingsBorder);
         enableClientConfigurationScanCheckBox =
                 new JCheckBox(
                         JWTI18n.getMessage("jwt.settings.general.enableClientSideScan.checkBox"));
-        settingsPanel.add(enableClientConfigurationScanCheckBox, gridBagConstraints);
+        generalSettingsPanel.add(enableClientConfigurationScanCheckBox);
+        return generalSettingsPanel;
     }
 
     /** Resets entire panel to default values. */
