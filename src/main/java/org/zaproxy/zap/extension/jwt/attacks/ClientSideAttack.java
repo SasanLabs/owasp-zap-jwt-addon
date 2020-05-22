@@ -33,10 +33,10 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.addon.commonlib.CookieUtils;
 import org.zaproxy.zap.extension.jwt.JWTActiveScanner;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.utils.VulnerabilityType;
-import org.zaproxy.zap.sharedutils.CookieUtils;
 
 /**
  * This class is used to find vulnerability in Client side implementation of JWT token.
