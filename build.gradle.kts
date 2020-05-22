@@ -40,6 +40,12 @@ zapAddOn {
 
     manifest {
         author.set("KSASAN preetkaran20@gmail.com")
+
+        dependencies {
+            addOns {
+                register("commonlib")
+            }
+        }
     }
 }
 
@@ -47,5 +53,8 @@ dependencies {
     implementation("org.json:json:20190722")
     // https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
     implementation("com.nimbusds:nimbus-jose-jwt:8.3")
-    implementation("org.zaproxy.addon:commonlib:1.0.0")
+
+    compileOnly("org.zaproxy.addon:commonlib:1.0.0")
+
+    testImplementation("org.zaproxy.addon:commonlib:1.0.0")
 }
