@@ -38,7 +38,7 @@ public interface JWTConstants {
                     + JWT_TOKEN_PERIOD_CHARACTER_REGEX
                     + "[a-zA-Z0-9_-]*";
     Pattern JWT_TOKEN_REGEX_VALIDATOR_PATTERN = Pattern.compile(JWT_TOKEN_FORMAT_REGEX + "$");
-    Pattern JWT_TOKEN_REGEX_FIND_PATTERN = Pattern.compile(JWT_TOKEN_FORMAT_REGEX + "[\\s]");
+    Pattern JWT_TOKEN_REGEX_FIND_PATTERN = Pattern.compile(JWT_TOKEN_FORMAT_REGEX);
     String BASE64_PADDING_CHARACTER_REGEX = "[=]";
     String[] NONE_ALGORITHM_VARIANTS = {"none", "None", "NONE", "nOnE"};
     String JWT_ALGORITHM_KEY_HEADER = "alg";
