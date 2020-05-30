@@ -48,8 +48,8 @@ import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.utils.FontUtils;
 
 /**
- * JWT options panel for specifying settings which are used by {@code JWTActiveScanner} for finding
- * vulnerabilities in applications.
+ * JWT options panel for specifying settings which are used by {@code JWTActiveScanner} and {@code
+ * JWTFuzzer} for finding vulnerabilities in applications.
  *
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
@@ -66,6 +66,17 @@ public class JWTOptionsPanel extends AbstractParamPanel {
     private JButton trustStoreFileChooserButton;
     private JTextField trustStoreFileChooserTextField;
     private JCheckBox enableClientConfigurationScanCheckBox;
+
+    /** JWT Fuzzer Options * */
+    private JPasswordField jwtHMacSignatureKey;
+    /**
+     * Going ahead with .pem format for private keys instead of .p12 format because of ease of use.
+     * *
+     */
+    // TODO Need to move truststore also to .pem format.
+    private String jwtRsaPrivateKeyFileChooserPath;
+
+    private JTextField jwtRsaPrivateKeyFileChooserTextField;
 
     /** Custom JWT configuration */
     public JWTOptionsPanel() {
@@ -91,6 +102,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
     private void init(JPanel settingsPanel) {
         settingsPanel.add(this.rsaSettingsSection());
         settingsPanel.add(this.generalSettingsSection());
+        settingsPanel.add(this.getFuzzerSettingsSection());
         footerPanel.add(getResetButton());
     }
 
@@ -166,19 +178,22 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         return gridBagConstraints;
     }
 
+    private TitledBorder getTitledBorder(String titleKey) {
+        return BorderFactory.createTitledBorder(
+                null,
+                JWTI18n.getMessage(titleKey),
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                FontUtils.getFont(FontUtils.Size.standard));
+    }
+
     private JPanel rsaSettingsSection() {
         JPanel rsaPanel = new JPanel();
         rsaPanel.setSize(rsaPanel.getPreferredSize());
         GridBagLayout gridBagLayout = new GridBagLayout();
         rsaPanel.setLayout(gridBagLayout);
         GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
-        TitledBorder rsaPanelBorder =
-                BorderFactory.createTitledBorder(
-                        null,
-                        JWTI18n.getMessage("jwt.settings.rsa.header"),
-                        TitledBorder.DEFAULT_JUSTIFICATION,
-                        TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard));
+        TitledBorder rsaPanelBorder = this.getTitledBorder("jwt.settings.rsa.header");
         rsaPanel.setBorder(rsaPanelBorder);
         JLabel lblTrustStorePathAttribute =
                 new JLabel(JWTI18n.getMessage("jwt.settings.rsa.trustStorePath"));
@@ -217,19 +232,106 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
     private JPanel generalSettingsSection() {
         JPanel generalSettingsPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        TitledBorder generalSettingsBorder =
-                BorderFactory.createTitledBorder(
-                        null,
-                        JWTI18n.getMessage("jwt.settings.general.header"),
-                        TitledBorder.DEFAULT_JUSTIFICATION,
-                        TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard));
+        TitledBorder generalSettingsBorder = this.getTitledBorder("jwt.settings.general.header");
         generalSettingsPanel.setBorder(generalSettingsBorder);
         enableClientConfigurationScanCheckBox =
                 new JCheckBox(
                         JWTI18n.getMessage("jwt.settings.general.enableClientSideScan.checkBox"));
         generalSettingsPanel.add(enableClientConfigurationScanCheckBox);
         return generalSettingsPanel;
+    }
+
+    private JPanel getFuzzerSettingsSection() {
+        JPanel fuzzerSettingsPanel = new JPanel(new GridBagLayout());
+        TitledBorder fuzzerSettingsBorder = this.getTitledBorder("jwt.settings.fuzzer.header");
+        fuzzerSettingsPanel.setBorder(fuzzerSettingsBorder);
+        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        gridBagConstraints.gridy++;
+        fuzzerSettingsPanel.add(getHMACSignaturePanel(), gridBagConstraints);
+        gridBagConstraints.gridy++;
+        fuzzerSettingsPanel.add(getRSASignaturePanel(), gridBagConstraints);
+        return fuzzerSettingsPanel;
+    }
+
+    private JPanel getHMACSignaturePanel() {
+        JPanel hmacSignaturePanel = new JPanel();
+        hmacSignaturePanel.setLayout(new GridBagLayout());
+        hmacSignaturePanel.setSize(hmacSignaturePanel.getPreferredSize());
+        TitledBorder hmacSignaturePanelBorder =
+                this.getTitledBorder("jwt.settings.fuzzer.hmac.signature.configuration");
+
+        hmacSignaturePanel.setBorder(hmacSignaturePanelBorder);
+        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        JLabel jwtHmacPrivateKeyLabel = new JLabel("Key");
+        jwtHMacSignatureKey = new JPasswordField();
+        jwtHMacSignatureKey.setEditable(true);
+        jwtHMacSignatureKey.setColumns(15);
+        gridBagConstraints.gridx = 0;
+        hmacSignaturePanel.add(jwtHmacPrivateKeyLabel, gridBagConstraints);
+        gridBagConstraints.gridx++;
+        hmacSignaturePanel.add(jwtHMacSignatureKey, gridBagConstraints);
+        gridBagConstraints.gridx++;
+        return hmacSignaturePanel;
+    }
+
+    private JPanel getRSASignaturePanel() {
+        JPanel rsaSignaturePanel = new JPanel();
+        rsaSignaturePanel.setLayout(new GridBagLayout());
+        rsaSignaturePanel.setSize(rsaSignaturePanel.getPreferredSize());
+        TitledBorder rsaSignaturePanelBorder =
+                this.getTitledBorder("jwt.settings.fuzzer.rsa.signature.configuration");
+        rsaSignaturePanel.setBorder(rsaSignaturePanelBorder);
+        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        JLabel jwtRsaPrivateKeyLabel = new JLabel("Private Key");
+        JButton jwtRsaPrivateKeyFileChooserButton = new JButton("Select...");
+        jwtRsaPrivateKeyFileChooserTextField = new JTextField();
+        jwtRsaPrivateKeyFileChooserTextField.setEditable(false);
+        jwtRsaPrivateKeyFileChooserTextField.setColumns(15);
+        jwtRsaPrivateKeyFileChooserButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JFileChooser jwtRsaPrivateKeyFileChooser = new JFileChooser();
+                        jwtRsaPrivateKeyFileChooser.setFileFilter(
+                                new FileFilter() {
+
+                                    @Override
+                                    public String getDescription() {
+                                        return "Description";
+                                    }
+
+                                    @Override
+                                    public boolean accept(File f) {
+                                        return f.getName().endsWith(".pem") || f.isDirectory();
+                                    }
+                                });
+                        jwtRsaPrivateKeyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                        String path = jwtRsaPrivateKeyFileChooserTextField.getText();
+                        if (!path.isEmpty()) {
+                            File file = new File(path);
+                            if (file.exists()) {
+                                jwtRsaPrivateKeyFileChooser.setSelectedFile(file);
+                            }
+                        }
+                        if (jwtRsaPrivateKeyFileChooser.showOpenDialog(null)
+                                == JFileChooser.APPROVE_OPTION) {
+                            final File selectedFile = jwtRsaPrivateKeyFileChooser.getSelectedFile();
+                            jwtRsaPrivateKeyFileChooserPath = selectedFile.getAbsolutePath();
+                            jwtRsaPrivateKeyFileChooserTextField.setText(
+                                    selectedFile.getAbsolutePath());
+                        }
+                    }
+                });
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy++;
+        rsaSignaturePanel.add(jwtRsaPrivateKeyLabel, gridBagConstraints);
+        gridBagConstraints.gridx++;
+        rsaSignaturePanel.add(jwtRsaPrivateKeyFileChooserTextField, gridBagConstraints);
+        gridBagConstraints.gridx++;
+        rsaSignaturePanel.add(jwtRsaPrivateKeyFileChooserButton, gridBagConstraints);
+        return rsaSignaturePanel;
     }
 
     /** Resets entire panel to default values. */
@@ -239,11 +341,17 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStorePassword = null;
         enableClientConfigurationScanCheckBox.setSelected(false);
         trustStorePath = "";
+        jwtRsaPrivateKeyFileChooserTextField.setText("");
+        jwtRsaPrivateKeyFileChooserPath = "";
+        jwtHMacSignatureKey.setText("");
     }
 
     private void populateOptionsPanel() {
         trustStoreFileChooserTextField.setText(trustStorePath);
         trustStorePasswordField.setText(trustStorePassword);
+        if (jwtRsaPrivateKeyFileChooserPath != null) {
+            this.jwtRsaPrivateKeyFileChooserTextField.setText(jwtRsaPrivateKeyFileChooserPath);
+        }
     }
 
     @Override
@@ -255,6 +363,11 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStorePassword = jwtConfiguration.getTrustStorePassword();
         enableClientConfigurationScanCheckBox.setSelected(
                 jwtConfiguration.isEnableClientConfigurationScan());
+        if (jwtConfiguration.getJwtHMacSignatureKey() != null) {
+            this.jwtHMacSignatureKey.setText(new String(jwtConfiguration.getJwtHMacSignatureKey()));
+        }
+        this.jwtRsaPrivateKeyFileChooserPath =
+                jwtConfiguration.getJwtRsaPrivateKeyFileChooserPath();
         this.populateOptionsPanel();
     }
 
@@ -269,5 +382,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         jwtConfiguration.setTrustStorePassword(trustStorePassword);
         jwtConfiguration.setEnableClientConfigurationScan(
                 enableClientConfigurationScanCheckBox.isSelected());
+        jwtConfiguration.setJwtHMacSignatureKey(jwtHMacSignatureKey.getPassword());
+        jwtConfiguration.setJwtRsaPrivateKeyFileChooserPath(jwtRsaPrivateKeyFileChooserPath);
     }
 }

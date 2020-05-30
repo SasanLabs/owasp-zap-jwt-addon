@@ -42,6 +42,12 @@ public class JWTConfiguration extends AbstractParam {
 
     private String trustStorePath;
     private String trustStorePassword;
+
+    /** Fuzzer settings. Not storing private keys because of security concerns. */
+    private String jwtRsaPrivateKeyFileChooserPath;
+
+    private char[] jwtHMacSignatureKey;
+
     private boolean enableClientConfigurationScan;
     private static volatile JWTConfiguration jwtConfiguration;
 
@@ -74,6 +80,22 @@ public class JWTConfiguration extends AbstractParam {
     public void setTrustStorePassword(String trustStorePassword) {
         this.trustStorePassword = trustStorePassword;
         this.getConfig().setProperty(PARAM_TRUST_STORE_PASSWORD, trustStorePassword);
+    }
+
+    public String getJwtRsaPrivateKeyFileChooserPath() {
+        return jwtRsaPrivateKeyFileChooserPath;
+    }
+
+    public void setJwtRsaPrivateKeyFileChooserPath(String jwtRsaPrivateKeyFileChooserPath) {
+        this.jwtRsaPrivateKeyFileChooserPath = jwtRsaPrivateKeyFileChooserPath;
+    }
+
+    public void setJwtHMacSignatureKey(char[] jwtHMacSignatureKey) {
+        this.jwtHMacSignatureKey = jwtHMacSignatureKey;
+    }
+
+    public char[] getJwtHMacSignatureKey() {
+        return jwtHMacSignatureKey;
     }
 
     public boolean isEnableClientConfigurationScan() {
