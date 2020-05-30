@@ -299,7 +299,8 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
                                     @Override
                                     public String getDescription() {
-                                        return JWTI18n.getMessage("jwt.settings.rsa.keystore.pemFileDescription");
+                                        return JWTI18n.getMessage(
+                                                "jwt.settings.rsa.keystore.pemFileDescription");
                                     }
 
                                     @Override

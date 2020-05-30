@@ -35,11 +35,11 @@ import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacers;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent.ViewComponent;
+import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.fuzzer.messagelocations.JWTMessageLocationReplacerFactory;
 import org.zaproxy.zap.extension.jwt.fuzzer.ui.JWTFuzzPanelViewFactory;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.view.HttpPanelManager;
-import org.zaproxy.zap.view.popup.ExtensionPopupMenuItemMessageContainer;
 
 public class ExtensionJWTFuzzer extends ExtensionAdaptor {
 
@@ -109,18 +109,13 @@ public class ExtensionJWTFuzzer extends ExtensionAdaptor {
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
-
+        JWTI18n.init();
         ExtensionFuzz extensionFuzz =
                 Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.class);
         extensionFuzz.addFuzzerHandler(jwtFuzzerHandler);
         extensionHook
                 .getHookMenu()
                 .addPopupMenuItem(new JWTFuzzAttackPopupMenuItem(extensionFuzz, jwtFuzzerHandler));
-        extensionHook
-                .getHookMenu()
-                .addPopupMenuItem(
-                        new ExtensionPopupMenuItemMessageContainer(
-                                Constant.messages.getString("jwt.fuzz.popup.menu.item.attack")));
     }
 
     @Override

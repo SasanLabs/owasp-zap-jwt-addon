@@ -40,9 +40,7 @@ public class JWTFuzzAttackPopupMenuItem extends PopupMenuItemHttpMessageContaine
 
     public JWTFuzzAttackPopupMenuItem(
             ExtensionFuzz extensionFuzz, HttpFuzzerHandler fuzzerHandler) {
-        super(Constant.messages.getString("jwt.fuzz.popup.menu.item.attack"));
-        // setIcon(FuzzerUIUtils.FUZZER_ICON);
-
+        super(Constant.messages.getString("jwt.fuzzer.popup.menu.item"));
         this.extensionFuzz = extensionFuzz;
         this.fuzzerHandler = fuzzerHandler;
     }

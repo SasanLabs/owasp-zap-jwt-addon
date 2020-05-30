@@ -500,9 +500,11 @@ public class JWTFuzzPanelView
     @Override
     public MessageLocationHighlight highlight(
             MessageLocation location, MessageLocationHighlight highlight) {
-        this.jwtMessageLocationAndRelatedComponentsMap
-                .get(location)
-                .forEach((component) -> component.setEnabled(false));
+        if (jwtMessageLocationAndRelatedComponentsMap.containsKey(location)) {
+            this.jwtMessageLocationAndRelatedComponentsMap
+                    .get(location)
+                    .forEach((component) -> component.setEnabled(false));
+        }
         addJWTMessageLocationSelectionUISection();
         return highlight;
     }
@@ -510,9 +512,11 @@ public class JWTFuzzPanelView
     @Override
     public void removeHighlight(
             MessageLocation location, MessageLocationHighlight highlightReference) {
-        this.jwtMessageLocationAndRelatedComponentsMap
-                .get(location)
-                .forEach((component) -> fuzzerPanel.remove(component));
+        if (jwtMessageLocationAndRelatedComponentsMap.containsKey(location)) {
+            this.jwtMessageLocationAndRelatedComponentsMap
+                    .get(location)
+                    .forEach((component) -> fuzzerPanel.remove(component));
+        }
         fuzzerPanel.revalidate();
         this.jwtMessageLocationAndRelatedComponentsMap.remove((JWTMessageLocation) location);
     }
