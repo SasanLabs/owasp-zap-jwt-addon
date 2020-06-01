@@ -44,9 +44,9 @@ public class JWTConfiguration extends AbstractParam {
     private String trustStorePassword;
 
     /** Fuzzer settings. Not storing private keys because of security concerns. */
-    private String jwtRsaPrivateKeyFileChooserPath;
+    private String rsaPrivateKeyFileChooserPath;
 
-    private char[] jwtHMacSignatureKey;
+    private char[] hmacSignatureKey;
 
     private boolean enableClientConfigurationScan;
     private static volatile JWTConfiguration jwtConfiguration;
@@ -82,20 +82,20 @@ public class JWTConfiguration extends AbstractParam {
         this.getConfig().setProperty(PARAM_TRUST_STORE_PASSWORD, trustStorePassword);
     }
 
-    public String getJwtRsaPrivateKeyFileChooserPath() {
-        return jwtRsaPrivateKeyFileChooserPath;
+    public String getRsaPrivateKeyFileChooserPath() {
+        return rsaPrivateKeyFileChooserPath;
     }
 
-    public void setJwtRsaPrivateKeyFileChooserPath(String jwtRsaPrivateKeyFileChooserPath) {
-        this.jwtRsaPrivateKeyFileChooserPath = jwtRsaPrivateKeyFileChooserPath;
+    public void setRsaPrivateKeyFileChooserPath(String rsaPrivateKeyFileChooserPath) {
+        this.rsaPrivateKeyFileChooserPath = rsaPrivateKeyFileChooserPath;
     }
 
-    public void setJwtHMacSignatureKey(char[] jwtHMacSignatureKey) {
-        this.jwtHMacSignatureKey = jwtHMacSignatureKey;
+    public void setHMacSignatureKey(char[] hmacSignatureKey) {
+        this.hmacSignatureKey = hmacSignatureKey;
     }
 
-    public char[] getJwtHMacSignatureKey() {
-        return jwtHMacSignatureKey;
+    public char[] getHMacSignatureKey() {
+        return hmacSignatureKey;
     }
 
     public boolean isEnableClientConfigurationScan() {

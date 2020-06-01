@@ -364,11 +364,10 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStorePassword = jwtConfiguration.getTrustStorePassword();
         enableClientConfigurationScanCheckBox.setSelected(
                 jwtConfiguration.isEnableClientConfigurationScan());
-        if (jwtConfiguration.getJwtHMacSignatureKey() != null) {
-            this.jwtHMacSignatureKey.setText(new String(jwtConfiguration.getJwtHMacSignatureKey()));
+        if (jwtConfiguration.getHMacSignatureKey() != null) {
+            this.jwtHMacSignatureKey.setText(new String(jwtConfiguration.getHMacSignatureKey()));
         }
-        this.jwtRsaPrivateKeyFileChooserPath =
-                jwtConfiguration.getJwtRsaPrivateKeyFileChooserPath();
+        this.jwtRsaPrivateKeyFileChooserPath = jwtConfiguration.getRsaPrivateKeyFileChooserPath();
         this.populateOptionsPanel();
     }
 
@@ -383,7 +382,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         jwtConfiguration.setTrustStorePassword(trustStorePassword);
         jwtConfiguration.setEnableClientConfigurationScan(
                 enableClientConfigurationScanCheckBox.isSelected());
-        jwtConfiguration.setJwtHMacSignatureKey(jwtHMacSignatureKey.getPassword());
-        jwtConfiguration.setJwtRsaPrivateKeyFileChooserPath(jwtRsaPrivateKeyFileChooserPath);
+        jwtConfiguration.setHMacSignatureKey(jwtHMacSignatureKey.getPassword());
+        jwtConfiguration.setRsaPrivateKeyFileChooserPath(jwtRsaPrivateKeyFileChooserPath);
     }
 }
