@@ -398,7 +398,9 @@ public class JWTFuzzPanelView
         String jwt = comboBoxKeyAndJwtMap.get(jwtComboBox.getSelectedItem().toString());
         String jwtComponentJsonKey = this.jwtComponentJsonKeysComboBox.getSelectedItem().toString();
         boolean isHeaderComponent =
-                this.jwtComponentType.getSelectedItem().equals(HEADER_COMPONENT_LABEL);
+                this.jwtComponentType
+                        .getSelectedItem()
+                        .equals(JWTI18n.getMessage(HEADER_COMPONENT_LABEL));
         int startIndex = this.message.getRequestHeader().toString().indexOf(jwt);
         if (startIndex >= 0) {
             location = Location.REQUEST_HEADER;
