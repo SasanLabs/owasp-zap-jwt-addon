@@ -19,10 +19,29 @@
  */
 package org.zaproxy.zap.extension.jwt;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
+import org.zaproxy.zap.extension.fuzz.httpfuzzer.processors.FuzzerHttpMessageScriptProcessorAdapterUIHandler;
+import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacers;
+import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
+import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
+import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent.ViewComponent;
+import org.zaproxy.zap.extension.jwt.fuzzer.JWTFuzzAttackPopupMenuItem;
+import org.zaproxy.zap.extension.jwt.fuzzer.JWTFuzzerHandler;
+import org.zaproxy.zap.extension.jwt.fuzzer.messagelocations.JWTMessageLocationReplacerFactory;
+import org.zaproxy.zap.extension.jwt.fuzzer.ui.JWTFuzzPanelViewFactory;
 import org.zaproxy.zap.extension.jwt.ui.JWTOptionsPanel;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.view.HttpPanelManager;
 
 /**
  * @author KSASAN preetkaran20@gmail.com
@@ -32,9 +51,53 @@ public class JWTExtension extends ExtensionAdaptor {
 
     protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
 
+    private static final List<Class<? extends Extension>> DEPENDENCIES;
+
+    private JWTFuzzerHandler jwtFuzzerHandler;
+    private JWTMessageLocationReplacerFactory jwtMessageLocationReplacerFactory;
+
+    static {
+        List<Class<? extends Extension>> dependencies = new ArrayList<>(1);
+        dependencies.add(ExtensionFuzz.class);
+        DEPENDENCIES = Collections.unmodifiableList(dependencies);
+    }
+
+    @Override
+    public List<Class<? extends Extension>> getDependencies() {
+        return DEPENDENCIES;
+    }
+
     @Override
     public String getAuthor() {
         return "KSASAN preetkaran20@gmail.com";
+    }
+
+    @Override
+    public void init() {
+        jwtFuzzerHandler = new JWTFuzzerHandler();
+        jwtMessageLocationReplacerFactory = new JWTMessageLocationReplacerFactory();
+        MessageLocationReplacers.getInstance()
+                .addReplacer(HttpMessage.class, jwtMessageLocationReplacerFactory);
+    }
+
+    @Override
+    public void initView(ViewDelegate view) {
+        super.initView(view);
+
+        ExtensionScript extensionScript =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
+        HttpPanelManager panelManager = HttpPanelManager.getInstance();
+        panelManager.addRequestViewFactory(
+                RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null));
+        panelManager.addRequestViewFactory(
+                RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.HEADER));
+        panelManager.addRequestViewFactory(
+                RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.BODY));
+
+        if (extensionScript != null) {
+            jwtFuzzerHandler.addFuzzerMessageProcessorUIHandler(
+                    new FuzzerHttpMessageScriptProcessorAdapterUIHandler(extensionScript));
+        }
     }
 
     @Override
@@ -44,10 +107,31 @@ public class JWTExtension extends ExtensionAdaptor {
         try {
             extensionHook.addOptionsParamSet(getJWTConfiguration());
             extensionHook.getHookView().addOptionPanel(new JWTOptionsPanel());
+            ExtensionFuzz extensionFuzz =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.class);
+            extensionFuzz.addFuzzerHandler(jwtFuzzerHandler);
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(
+                            new JWTFuzzAttackPopupMenuItem(extensionFuzz, jwtFuzzerHandler));
             LOGGER.debug("JWT Extension loaded successfully");
         } catch (Exception e) {
             LOGGER.error("JWT Extension can't be loaded. Configuration not found or invalid", e);
         }
+    }
+
+    @Override
+    public void unload() {
+        super.unload();
+        HttpPanelManager panelManager = HttpPanelManager.getInstance();
+        panelManager.removeRequestViewFactory(
+                RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null).getName());
+        panelManager.removeRequestViewFactory(
+                RequestSplitComponent.NAME,
+                new JWTFuzzPanelViewFactory(ViewComponent.HEADER).getName());
+        panelManager.removeRequestViewFactory(
+                RequestSplitComponent.NAME,
+                new JWTFuzzPanelViewFactory(ViewComponent.BODY).getName());
     }
 
     private JWTConfiguration getJWTConfiguration() {
