@@ -123,7 +123,7 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                     currentReplacement.replace(
                             jwtMessageLocation, replacement.getReplacement().toString());
                 } catch (JWTException e) {
-
+                    throw new InvalidMessageException(e);
                 }
             }
         }

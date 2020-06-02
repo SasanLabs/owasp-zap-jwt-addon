@@ -30,17 +30,15 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
-import org.zaproxy.zap.extension.fuzz.httpfuzzer.processors.FuzzerHttpMessageScriptProcessorAdapterUIHandler;
+import org.zaproxy.zap.extension.fuzz.httpfuzzer.ExtensionHttpFuzzer;
+import org.zaproxy.zap.extension.fuzz.httpfuzzer.HttpFuzzerHandler;
 import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacers;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent.ViewComponent;
-import org.zaproxy.zap.extension.jwt.fuzzer.JWTFuzzAttackPopupMenuItem;
-import org.zaproxy.zap.extension.jwt.fuzzer.JWTFuzzerHandler;
 import org.zaproxy.zap.extension.jwt.fuzzer.messagelocations.JWTMessageLocationReplacerFactory;
 import org.zaproxy.zap.extension.jwt.fuzzer.ui.JWTFuzzPanelViewFactory;
 import org.zaproxy.zap.extension.jwt.ui.JWTOptionsPanel;
-import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.view.HttpPanelManager;
 
 /**
@@ -53,12 +51,12 @@ public class JWTExtension extends ExtensionAdaptor {
 
     private static final List<Class<? extends Extension>> DEPENDENCIES;
 
-    private JWTFuzzerHandler jwtFuzzerHandler;
+    private HttpFuzzerHandler httpFuzzerHandler;
     private JWTMessageLocationReplacerFactory jwtMessageLocationReplacerFactory;
 
     static {
         List<Class<? extends Extension>> dependencies = new ArrayList<>(1);
-        dependencies.add(ExtensionFuzz.class);
+        dependencies.add(ExtensionHttpFuzzer.class);
         DEPENDENCIES = Collections.unmodifiableList(dependencies);
     }
 
@@ -74,7 +72,7 @@ public class JWTExtension extends ExtensionAdaptor {
 
     @Override
     public void init() {
-        jwtFuzzerHandler = new JWTFuzzerHandler();
+        JWTI18n.init();
         jwtMessageLocationReplacerFactory = new JWTMessageLocationReplacerFactory();
         MessageLocationReplacers.getInstance()
                 .addReplacer(HttpMessage.class, jwtMessageLocationReplacerFactory);
@@ -84,8 +82,6 @@ public class JWTExtension extends ExtensionAdaptor {
     public void initView(ViewDelegate view) {
         super.initView(view);
 
-        ExtensionScript extensionScript =
-                Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         HttpPanelManager panelManager = HttpPanelManager.getInstance();
         panelManager.addRequestViewFactory(
                 RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null));
@@ -93,27 +89,17 @@ public class JWTExtension extends ExtensionAdaptor {
                 RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.HEADER));
         panelManager.addRequestViewFactory(
                 RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.BODY));
-
-        if (extensionScript != null) {
-            jwtFuzzerHandler.addFuzzerMessageProcessorUIHandler(
-                    new FuzzerHttpMessageScriptProcessorAdapterUIHandler(extensionScript));
-        }
     }
 
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
-        JWTI18n.init();
         try {
             extensionHook.addOptionsParamSet(getJWTConfiguration());
             extensionHook.getHookView().addOptionPanel(new JWTOptionsPanel());
             ExtensionFuzz extensionFuzz =
                     Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.class);
-            extensionFuzz.addFuzzerHandler(jwtFuzzerHandler);
-            extensionHook
-                    .getHookMenu()
-                    .addPopupMenuItem(
-                            new JWTFuzzAttackPopupMenuItem(extensionFuzz, jwtFuzzerHandler));
+            extensionFuzz.addFuzzerHandler(httpFuzzerHandler);
             LOGGER.debug("JWT Extension loaded successfully");
         } catch (Exception e) {
             LOGGER.error("JWT Extension can't be loaded. Configuration not found or invalid", e);
