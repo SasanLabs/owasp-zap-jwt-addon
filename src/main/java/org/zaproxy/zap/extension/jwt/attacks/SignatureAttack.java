@@ -258,13 +258,11 @@ public class SignatureAttack implements JWTAttack {
                                 Key publicKey = certificate.getPublicKey();
                                 JWTHolder clonedJWTHolder =
                                         JWTHolder.parseJWTToken(
-                                                base64EncodedNewHeaderAndPayload
-                                                        + JWT_TOKEN_PERIOD_CHARACTER
-                                                        + JWTUtils.getBase64EncodedHMACSignedToken(
-                                                                JWTUtils.getBytes(
-                                                                        base64EncodedNewHeaderAndPayload),
-                                                                publicKey.getEncoded(),
-                                                                HMAC_256));
+                                                JWTUtils.getBase64EncodedHMACSignedToken(
+                                                        JWTUtils.getBytes(
+                                                                base64EncodedNewHeaderAndPayload),
+                                                        publicKey.getEncoded(),
+                                                        HMAC_256));
                                 if (verifyJWTToken(
                                         clonedJWTHolder.getBase64EncodedToken(),
                                         serverSideAttack)) {

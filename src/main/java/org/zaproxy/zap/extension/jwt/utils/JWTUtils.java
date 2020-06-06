@@ -24,12 +24,15 @@ import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.BEARER_TOKEN_KEY;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.BEARER_TOKEN_REGEX;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_RSA_ALGORITHM_IDENTIFIER;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_RSA_PSS_ALGORITHM_IDENTIFIER;
+import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_PERIOD_CHARACTER;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_REGEX_VALIDATOR_PATTERN;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.util.Base64URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -60,6 +63,22 @@ public class JWTUtils {
      */
     public static byte[] getBytes(String token) {
         return token.getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Converts char array to byte array securely. Not using string to byte array manipulation
+     * because of security concerns. This method assumes that token is in UTF-8 charset which is as
+     * per the JWT specifications.
+     *
+     * @param token
+     * @return resultant byte array
+     */
+    public static byte[] getBytes(char[] token) {
+        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(token));
+        byte[] byteArray = new byte[byteBuffer.remaining()];
+        // Populate the provided array
+        byteBuffer.get(byteArray);
+        return byteArray;
     }
 
     /**
@@ -128,7 +147,7 @@ public class JWTUtils {
      * @param token to be signed.
      * @param secretKey used for signing the Hmac token.
      * @param algorithm Hmac signature algorithm e.g. HS256, HS384, HS512
-     * @return base64 encoded Hmac signed token.
+     * @return Final Signed JWT Base64 encoded Hmac signed token.
      * @throws JWTException if provided Hmac algorithm is not supported.
      */
     public static String getBase64EncodedHMACSignedToken(
@@ -144,7 +163,9 @@ public class JWTUtils {
                 byte[] tokenSignature = hmacSHA.doFinal(token);
                 String base64EncodedSignature =
                         JWTUtils.getBase64UrlSafeWithoutPaddingEncodedString(tokenSignature);
-                return base64EncodedSignature;
+                return JWTUtils.getString(token)
+                        + JWT_TOKEN_PERIOD_CHARACTER
+                        + base64EncodedSignature;
             } else {
                 throw new JWTException(algorithm + " is not a supported HMAC algorithm.");
             }

@@ -35,8 +35,10 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
 import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacement;
 import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacer;
+import org.zaproxy.zap.extension.jwt.JWTConfiguration;
 import org.zaproxy.zap.extension.jwt.JWTHolder;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
+import org.zaproxy.zap.extension.jwt.utils.JWTConstants;
 import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 import org.zaproxy.zap.model.InvalidMessageException;
 import org.zaproxy.zap.model.MessageLocation;
@@ -165,8 +167,9 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
             value = new StringBuilder(originalValue);
         }
 
-        private RSAPrivateKey getPrivateKey() throws JWTException {
-            File pemFile = new File("/");
+        private RSAPrivateKey getRSAPrivateKey() throws JWTException {
+            File pemFile =
+                    new File(JWTConfiguration.getInstance().getRsaPrivateKeyFileChooserPath());
             try {
                 String certAndKey = FileUtils.readFileToString(pemFile, StandardCharsets.US_ASCII);
                 byte[] keyBytes = SslCertificateUtils.extractPrivateKey(certAndKey);
@@ -201,12 +204,26 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                     .getFuzzerJWTSignatureOperation()
                     .equals(FuzzerJWTSignatureOperation.NO_SIGNATURE)) {
                 jwtHolder.setSignature(JWTUtils.getBytes(""));
+                jwtToken = jwtHolder.getBase64EncodedToken();
             } else if (jwtMessageLocation
                     .getFuzzerJWTSignatureOperation()
                     .equals(FuzzerJWTSignatureOperation.NEW_SIGNATURE)) {
-                JWTUtils.getBase64EncodedRSSignedToken(jwtHolder, getPrivateKey());
+                String algorithm = jwtHolder.getAlgorithm();
+                if (algorithm.startsWith(JWTConstants.JWT_HMAC_ALGORITHM_IDENTIFIER)) {
+                    jwtToken =
+                            JWTUtils.getBase64EncodedHMACSignedToken(
+                                    JWTUtils.getBytes(
+                                            jwtHolder.getBase64EncodedTokenWithoutSignature()),
+                                    JWTUtils.getBytes(
+                                            JWTConfiguration.getInstance().getHMacSignatureKey()),
+                                    algorithm);
+                } else if (algorithm.startsWith(JWTConstants.JWT_RSA_ALGORITHM_IDENTIFIER)) {
+                    jwtToken =
+                            JWTUtils.getBase64EncodedRSSignedToken(jwtHolder, getRSAPrivateKey());
+                } else {
+                    throw new JWTException("Unsupported Algorithm type: " + algorithm);
+                }
             }
-            jwtToken = jwtHolder.getBase64EncodedToken();
             this.value.replace(
                     offset + jwtMessageLocation.getStart(),
                     offset + jwtMessageLocation.getEnd() + 1,

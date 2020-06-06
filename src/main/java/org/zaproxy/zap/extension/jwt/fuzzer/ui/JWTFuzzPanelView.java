@@ -50,6 +50,7 @@ import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitC
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.jwt.JWTConfiguration;
 import org.zaproxy.zap.extension.jwt.JWTHolder;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
@@ -445,16 +446,23 @@ public class JWTFuzzPanelView
                     String jwt = comboBoxKeyAndJwtMap.get(jwtComboBox.getSelectedItem().toString());
                     jwtHolder = JWTHolder.parseJWTToken(jwt);
                     if ((JWTConstants.JWT_HMAC_ALGO_TO_JAVA_ALGORITHM_MAPPING.containsKey(
-                                    jwtHolder.getAlgorithm())
-                            /* && JWTConfiguration.getInstance().getPassword().length == 0*/ )
+                                            jwtHolder.getAlgorithm())
+                                    && JWTConfiguration.getInstance().getHMacSignatureKey().length
+                                            == 0)
                             || (jwtHolder
-                                            .getAlgorithm()
-                                            .startsWith(JWTConstants.JWT_RSA_ALGORITHM_IDENTIFIER)
-                                    || jwtHolder
-                                            .getAlgorithm()
-                                            .startsWith(
-                                                    JWTConstants.JWT_RSA_PSS_ALGORITHM_IDENTIFIER))
-                    /* && this.jwtRsaSignatureFileChooserPath.length() == 0*/ ) {
+                                                    .getAlgorithm()
+                                                    .startsWith(
+                                                            JWTConstants
+                                                                    .JWT_RSA_ALGORITHM_IDENTIFIER)
+                                            || jwtHolder
+                                                    .getAlgorithm()
+                                                    .startsWith(
+                                                            JWTConstants
+                                                                    .JWT_RSA_PSS_ALGORITHM_IDENTIFIER))
+                                    && JWTConfiguration.getInstance()
+                                                    .getRsaPrivateKeyFileChooserPath()
+                                                    .length()
+                                            == 0) {
                         return false;
                     }
                 } catch (JWTException e) {
