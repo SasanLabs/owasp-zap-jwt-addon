@@ -48,7 +48,7 @@ import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
  */
 public class JWTActiveScanner extends AbstractAppParamPlugin {
 
-    private static final int PLUGIN_ID = 1001;
+    private static final int PLUGIN_ID = 40036;
     private static final String NAME = JWTI18n.getMessage("jwt.scanner.name");
     private static final String DESCRIPTION = JWTI18n.getMessage("jwt.scanner.description");
     private static final String SOLUTION = JWTI18n.getMessage("jwt.scanner.soln");
