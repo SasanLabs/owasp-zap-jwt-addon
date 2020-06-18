@@ -26,9 +26,9 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListener
 
 /**
  * This class is the generic criteria based {@code FocusListener} adapter. This is an extension to
- * {@link GenericCriteriaBasedMessageLocationProducerFocusListenerAdapter} where this can be used to
- * listen to changes in focus of {@code MessageLocationProducer}s and propagate the event if
- * provided criteria is fulfilled.
+ * {@link MessageLocationProducerFocusListenerAdapter} where this can be used to listen to changes
+ * in focus of {@code MessageLocationProducer}s and propagate the event if provided criteria is
+ * fulfilled.
  *
  * @author preetkaran20@gmail.com KSASAN
  */

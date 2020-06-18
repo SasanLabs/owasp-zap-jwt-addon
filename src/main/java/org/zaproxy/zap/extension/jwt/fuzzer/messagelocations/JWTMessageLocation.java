@@ -137,6 +137,30 @@ public class JWTMessageLocation extends DefaultTextHttpMessageLocation implement
     }
 
     @Override
+    public int compareTo(MessageLocation otherLocation) {
+        if (!(otherLocation instanceof JWTMessageLocation)) {
+            return 1;
+        }
+        JWTMessageLocation that = (JWTMessageLocation) otherLocation;
+
+        int result = Boolean.compare(that.isHeaderField, this.isHeaderField);
+        if (result != 0) {
+            return result;
+        }
+
+        result = this.key.compareTo(that.key);
+        if (result != 0) {
+            return result;
+        }
+
+        result = this.fuzzerJWTSignatureOperation.compareTo(that.fuzzerJWTSignatureOperation);
+        if (result != 0) {
+            return result;
+        }
+        return super.compareTo(otherLocation);
+    }
+
+    @Override
     public boolean overlaps(MessageLocation otherLocation) {
         return this.equals(otherLocation);
     }

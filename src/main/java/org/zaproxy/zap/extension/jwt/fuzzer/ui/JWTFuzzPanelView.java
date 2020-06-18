@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.jwt.fuzzer.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -34,12 +32,15 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.TitledBorder;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -59,6 +60,7 @@ import org.zaproxy.zap.extension.jwt.fuzzer.messagelocations.JWTMessageLocation;
 import org.zaproxy.zap.extension.jwt.utils.JWTConstants;
 import org.zaproxy.zap.model.HttpMessageLocation.Location;
 import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightsManager;
@@ -83,7 +85,6 @@ public class JWTFuzzPanelView
 
     private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
     private JScrollPane contentScrollPane;
-    private JPanel contentPanel;
     private JPanel fuzzerPanel;
     private JComboBox<String> jwtComboBox;
     private JComboBox<String> jwtComponentType;
@@ -105,22 +106,14 @@ public class JWTFuzzPanelView
     }
 
     public JWTFuzzPanelView(ViewComponent viewComponent) {
-        contentPanel = new JPanel();
-        contentPanel.setSize(contentPanel.getPreferredSize());
-        contentPanel.setLayout(new BorderLayout());
-        fuzzerPanel = new JPanel();
-        fuzzerPanel.setSize(fuzzerPanel.getPreferredSize());
-        fuzzerPanel.setFocusable(true);
-        GridBagLayout gridBagLayout = new GridBagLayout();
-        fuzzerPanel.setLayout(gridBagLayout);
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentScrollPane =
                 new JScrollPane(
                         contentPanel,
                         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        gridBagConstraints = this.getGridBagConstraints();
-        init();
-        contentPanel.add(fuzzerPanel, BorderLayout.NORTH);
+        init(contentPanel);
         this.viewComponent = viewComponent;
     }
 
@@ -135,42 +128,119 @@ public class JWTFuzzPanelView
         return gridBagConstraints;
     }
 
-    private void init() {
-        addLabel();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy++;
-        addJWTMessageLocationSelectionUISection();
+    private void init(JPanel contentPanel) {
+        contentPanel.add(this.getJWTCommonPropertiesPanel());
+        contentPanel.add(this.getFuzzerPanel());
     }
 
-    private void addLabel() {
+    private JPanel getJWTCommonPropertiesPanel() {
+        JPanel commonPropertiesPanel = new JPanel();
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        commonPropertiesPanel.setLayout(gridBagLayout);
+        commonPropertiesPanel.setBorder(
+                BorderFactory.createTitledBorder(
+                        null,
+                        "Common Properties",
+                        TitledBorder.DEFAULT_JUSTIFICATION,
+                        TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard)));
+        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
         gridBagConstraints.gridx = 0;
-        fuzzerPanel.add(
+        commonPropertiesPanel.add(
                 new JLabel(JWTI18n.getMessage("jwt.settings.title"), JLabel.CENTER),
                 gridBagConstraints);
         gridBagConstraints.gridx++;
-        fuzzerPanel.add(
-                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.component"), JLabel.CENTER),
-                gridBagConstraints);
-        gridBagConstraints.gridx++;
-        JLabel keyLabel =
-                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.key"), JLabel.CENTER);
-        keyLabel.setPreferredSize(new Dimension(100, keyLabel.getHeight()));
-        fuzzerPanel.add(keyLabel, gridBagConstraints);
-        gridBagConstraints.gridx++;
-        fuzzerPanel.add(
+        commonPropertiesPanel.add(
                 new JLabel(
                         JWTI18n.getMessage("jwt.fuzzer.panel.signature.operationtype"),
                         JLabel.CENTER),
                 gridBagConstraints);
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy++;
+        jwtComboBox = new JComboBox<String>(this.jwtComboBoxModel);
+        commonPropertiesPanel.add(jwtComboBox, gridBagConstraints);
+        gridBagConstraints.gridx++;
+        jwtSignatureOperationCheckBox =
+                new JComboBox<FuzzerJWTSignatureOperation>(FuzzerJWTSignatureOperation.values());
+        commonPropertiesPanel.add(jwtSignatureOperationCheckBox, gridBagConstraints);
+        this.addActionListenerToRequestFocus(this.jwtComboBox);
+        this.addActionListenerToRequestFocus(this.jwtSignatureOperationCheckBox);
+        return commonPropertiesPanel;
     }
 
-    private void addFuzzerFieldsActionListeners() {
-        this.jwtComboBox.addActionListener((e) -> fuzzerPanel.requestFocusInWindow());
-        this.jwtComponentJsonKeysComboBox.addActionListener(
-                (e) -> fuzzerPanel.requestFocusInWindow());
-        this.jwtComponentType.addActionListener((e) -> fuzzerPanel.requestFocusInWindow());
-        this.jwtSignatureOperationCheckBox.addActionListener(
-                (e) -> fuzzerPanel.requestFocusInWindow());
+    private <T> void addActionListenerToRequestFocus(JComboBox<T> comboBox) {
+        comboBox.addActionListener((e) -> fuzzerPanel.requestFocusInWindow());
+    }
+
+    private JPanel getFuzzerPanel() {
+        fuzzerPanel = new JPanel();
+        fuzzerPanel.setBorder(
+                BorderFactory.createTitledBorder(
+                        null,
+                        "JWT Fields",
+                        TitledBorder.DEFAULT_JUSTIFICATION,
+                        TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard)));
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        gridBagConstraints = this.getGridBagConstraints();
+        fuzzerPanel.setLayout(gridBagLayout);
+
+        JLabel componentLabel =
+                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.component"), JLabel.CENTER);
+        fuzzerPanel.add(componentLabel, gridBagConstraints);
+        gridBagConstraints.gridx++;
+        JLabel keyLabel =
+                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.key"), JLabel.CENTER);
+        fuzzerPanel.add(keyLabel, gridBagConstraints);
+
+        gridBagConstraints.gridy++;
+        addActionListenerOnJWTComboBox();
+        return fuzzerPanel;
+    }
+
+    private void updateUIWithJWTSelection() {
+        if (jwtComboBox.getSelectedIndex() > 0) {
+            jwtComponentType = new JComboBox<String>();
+            jwtComponentJsonKeysComboBox = new JComboBox<String>();
+            this.addActionListenerToRequestFocus(jwtComponentType);
+            this.addActionListenerToRequestFocus(jwtComponentJsonKeysComboBox);
+            String selectedItem =
+                    comboBoxKeyAndJwtMap.get(jwtComboBox.getSelectedItem().toString());
+            try {
+                JWTHolder jwtHolder = JWTHolder.parseJWTToken(selectedItem);
+                jwtComponentType.removeAllItems();
+                ;
+                jwtComponentType.addItem(JWTI18n.getMessage(HEADER_COMPONENT_LABEL));
+                if (isValidJson(jwtHolder.getPayload())) {
+                    jwtComponentType.addItem(JWTI18n.getMessage(PAYLOAD_COMPONENT_LABEL));
+                }
+                jwtComponentType.setSelectedIndex(0);
+                gridBagConstraints.gridx = 0;
+                fuzzerPanel.add(jwtComponentType, gridBagConstraints);
+                gridBagConstraints.gridx++;
+                fuzzerPanel.add(jwtComponentJsonKeysComboBox, gridBagConstraints);
+
+                String jwtComponentValue = jwtHolder.getHeader();
+                if (jwtComponentType.getSelectedIndex() == 1) {
+                    jwtComponentValue = jwtHolder.getPayload();
+                }
+                JSONObject jsonObject = new JSONObject(jwtComponentValue);
+                Vector<String> keys = new Vector<>();
+                keys.addAll(jsonObject.keySet());
+                jwtComponentJsonKeysComboBox.removeAllItems();
+                for (String key : keys) {
+                    jwtComponentJsonKeysComboBox.addItem(key);
+                }
+                jwtComponentJsonKeysComboBox.setSelectedIndex(0);
+                fuzzerPanel.revalidate();
+                jwtComponentType.addActionListener(getJWTComponentTypeActionListener(jwtHolder));
+            } catch (Exception e) {
+                LOGGER.error("Error Occurred: ", e);
+            }
+        } else {
+            resetCurrentJWTMessageLocationUI();
+        }
+        fuzzerPanel.revalidate();
     }
 
     private void resetCurrentJWTMessageLocationUI() {
@@ -207,67 +277,21 @@ public class JWTFuzzPanelView
         };
     }
 
-    private void addJWTMessageLocationSelectionUISection() {
-        gridBagConstraints.gridy++;
-        gridBagConstraints.gridx = 0;
-        jwtComboBox = new JComboBox<String>(this.jwtComboBoxModel);
-        jwtComponentType = new JComboBox<String>();
-        jwtComponentJsonKeysComboBox = new JComboBox<String>();
-        jwtSignatureOperationCheckBox =
-                new JComboBox<FuzzerJWTSignatureOperation>(FuzzerJWTSignatureOperation.values());
-        this.addFuzzerFieldsActionListeners();
-        fuzzerPanel.add(jwtComboBox, gridBagConstraints);
+    private void addActionListenerOnJWTComboBox() {
         jwtComboBox.addActionListener(
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent actionEvent) {
-                        if (jwtComboBox.getSelectedIndex() > 0) {
-                            String selectedItem =
-                                    comboBoxKeyAndJwtMap.get(
-                                            jwtComboBox.getSelectedItem().toString());
-                            try {
-                                JWTHolder jwtHolder = JWTHolder.parseJWTToken(selectedItem);
-                                jwtComponentType.removeAllItems();
-                                ;
-                                jwtComponentType.addItem(
-                                        JWTI18n.getMessage(HEADER_COMPONENT_LABEL));
-                                if (isValidJson(jwtHolder.getPayload())) {
-                                    jwtComponentType.addItem(
-                                            JWTI18n.getMessage(PAYLOAD_COMPONENT_LABEL));
-                                }
-                                jwtComponentType.setSelectedIndex(0);
-                                gridBagConstraints.gridx++;
-                                fuzzerPanel.add(jwtComponentType, gridBagConstraints);
-                                gridBagConstraints.gridx++;
-                                fuzzerPanel.add(jwtComponentJsonKeysComboBox, gridBagConstraints);
-                                gridBagConstraints.gridx++;
-                                fuzzerPanel.add(jwtSignatureOperationCheckBox, gridBagConstraints);
-                                gridBagConstraints.gridx = 0;
-                                String jwtComponentValue = jwtHolder.getHeader();
-                                if (jwtComponentType.getSelectedIndex() == 1) {
-                                    jwtComponentValue = jwtHolder.getPayload();
-                                }
-                                JSONObject jsonObject = new JSONObject(jwtComponentValue);
-                                Vector<String> keys = new Vector<>();
-                                keys.addAll(jsonObject.keySet());
-                                jwtComponentJsonKeysComboBox.removeAllItems();
-                                for (String key : keys) {
-                                    jwtComponentJsonKeysComboBox.addItem(key);
-                                }
-                                jwtComponentJsonKeysComboBox.setSelectedIndex(0);
-                                fuzzerPanel.revalidate();
-                                jwtComponentType.addActionListener(
-                                        getJWTComponentTypeActionListener(jwtHolder));
-                            } catch (Exception e) {
-                                LOGGER.error("Error Occurred: ", e);
-                            }
-                        } else {
-                            resetCurrentJWTMessageLocationUI();
-                        }
-                        fuzzerPanel.revalidate();
+                        updateUIWithJWTSelection();
                     }
                 });
-        fuzzerPanel.revalidate();
+    }
+
+    /** Adds the New JWT Component Type and Key Field ComboBox. */
+    private void addNewFuzzerFieldsRow() {
+        gridBagConstraints.gridy++;
+        gridBagConstraints.gridx = 0;
+        updateUIWithJWTSelection();
     }
 
     @Override
@@ -416,18 +440,14 @@ public class JWTFuzzPanelView
                 new JWTMessageLocation(
                         location,
                         startIndex,
-                        startIndex + jwt.length() - 1,
+                        startIndex + jwt.length(),
                         jwt,
                         jwtComponentJsonKey,
                         isHeaderComponent,
                         (FuzzerJWTSignatureOperation)
                                 (jwtSignatureOperationCheckBox.getSelectedItem()));
         List<Component> components =
-                Arrays.asList(
-                        this.jwtComboBox,
-                        this.jwtComponentType,
-                        this.jwtComponentJsonKeysComboBox,
-                        this.jwtSignatureOperationCheckBox);
+                Arrays.asList(this.jwtComponentType, this.jwtComponentJsonKeysComboBox);
         this.jwtMessageLocationAndRelatedComponentsMap.put(jwtMessageLocation, components);
         return jwtMessageLocation;
     }
@@ -500,11 +520,7 @@ public class JWTFuzzPanelView
 
     @Override
     public MessageLocationHighlight highlight(MessageLocation location) {
-        this.jwtMessageLocationAndRelatedComponentsMap
-                .get(location)
-                .forEach((component) -> component.setEnabled(false));
-        addJWTMessageLocationSelectionUISection();
-        return null;
+        return this.highlight(location, null);
     }
 
     @Override
@@ -515,7 +531,11 @@ public class JWTFuzzPanelView
                     .get(location)
                     .forEach((component) -> component.setEnabled(false));
         }
-        addJWTMessageLocationSelectionUISection();
+        addNewFuzzerFieldsRow();
+        if (jwtMessageLocationAndRelatedComponentsMap.size() > 0) {
+            this.jwtComboBox.setEnabled(false);
+            this.jwtSignatureOperationCheckBox.setEnabled(false);
+        }
         return highlight;
     }
 
@@ -527,8 +547,12 @@ public class JWTFuzzPanelView
                     .get(location)
                     .forEach((component) -> fuzzerPanel.remove(component));
         }
-        fuzzerPanel.revalidate();
         this.jwtMessageLocationAndRelatedComponentsMap.remove((JWTMessageLocation) location);
+        if (jwtMessageLocationAndRelatedComponentsMap.size() == 0) {
+            this.jwtComboBox.setEnabled(true);
+            this.jwtSignatureOperationCheckBox.setEnabled(true);
+        }
+        fuzzerPanel.revalidate();
     }
 
     @Override

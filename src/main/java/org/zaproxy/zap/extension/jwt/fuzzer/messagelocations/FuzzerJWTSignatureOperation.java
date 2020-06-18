@@ -22,24 +22,26 @@ package org.zaproxy.zap.extension.jwt.fuzzer.messagelocations;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
 
 /**
- * @author preetkaran20@gmail.com KSASAN This class represents the operation on JWT Signature after
- *     fuzzing the {@code Headers} and {@code Payload} fields. <br>
- *     Following are the operations on the Signatures:
- *     <ol>
- *       <li>Either no signature component will be added to JWT token e.g. in case of {@code None}
- *           hashing algorithm we don't require the signature component.
- *       <li>Generating new signature for the fuzzed token. This is useful for finding
- *           vulnerabilities in JWT fields where say a field value cause {@code SQLInjection} kind
- *           of vulnerabilities.
- *       <li>Using the same old signature for the fuzzed JWT too.
- *     </ol>
+ * This class represents the operation on JWT Signature after fuzzing the {@code Headers} and {@code
+ * Payload} fields. <br>
+ * Following are the operations on the Signatures:
+ *
+ * <ol>
+ *   <li>Either no signature component will be added to JWT token e.g. in case of {@code None}
+ *       hashing algorithm we don't require the signature component.
+ *   <li>Generating new signature for the fuzzed token. This is useful for finding vulnerabilities
+ *       in JWT fields where say a field value cause {@code SQLInjection} kind of vulnerabilities.
+ *   <li>Using the same old signature for the fuzzed JWT too.
+ * </ol>
+ *
+ * @author preetkaran20@gmail.com KSASAN
  */
 public enum FuzzerJWTSignatureOperation {
 
-    /** No {@code JWT Signature} component. */
+    /** No {@code Signature} component. */
     NO_SIGNATURE("jwt.fuzzer.signature.operation.nosignature"),
 
-    /** New {@code Signature} needs to be generated with fuzzed token. */
+    /** New {@code Signature} component needs to be generated and appended with fuzzed token. */
     NEW_SIGNATURE("jwt.fuzzer.signature.operation.newsignature"),
 
     /** Same {@code Signature} component appended to fuzzed token. */

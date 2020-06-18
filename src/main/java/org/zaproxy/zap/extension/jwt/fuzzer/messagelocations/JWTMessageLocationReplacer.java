@@ -226,7 +226,7 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
             }
             this.value.replace(
                     offset + jwtMessageLocation.getStart(),
-                    offset + jwtMessageLocation.getEnd() + 1,
+                    offset + jwtMessageLocation.getEnd(),
                     jwtToken.trim());
             offset +=
                     value.length() - (jwtMessageLocation.getEnd() - jwtMessageLocation.getStart());
