@@ -92,27 +92,32 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                 case REQUEST_HEADER:
                     if (requestHeaderReplacement == null) {
                         requestHeaderReplacement =
-                                new Replacer(message.getRequestHeader().toString());
+                                new Replacer(
+                                        message.getRequestHeader().toString(), jwtMessageLocation);
                     }
                     currentReplacement = requestHeaderReplacement;
                     break;
                 case REQUEST_BODY:
                     if (requestBodyReplacement == null) {
-                        requestBodyReplacement = new Replacer(message.getRequestBody().toString());
+                        requestBodyReplacement =
+                                new Replacer(
+                                        message.getRequestBody().toString(), jwtMessageLocation);
                     }
                     currentReplacement = requestBodyReplacement;
                     break;
                 case RESPONSE_HEADER:
                     if (responseHeaderReplacement == null) {
                         responseHeaderReplacement =
-                                new Replacer(message.getResponseHeader().toString());
+                                new Replacer(
+                                        message.getResponseHeader().toString(), jwtMessageLocation);
                     }
                     currentReplacement = responseHeaderReplacement;
                     break;
                 case RESPONSE_BODY:
                     if (responseBodyReplacement == null) {
                         responseBodyReplacement =
-                                new Replacer(message.getResponseBody().toString());
+                                new Replacer(
+                                        message.getResponseBody().toString(), jwtMessageLocation);
                     }
                     currentReplacement = responseBodyReplacement;
                     break;
@@ -133,26 +138,34 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
         HttpMessage replacedMessage = message.cloneAll();
         if (requestHeaderReplacement != null) {
             try {
-                replacedMessage.setRequestHeader(requestHeaderReplacement.toString());
-            } catch (HttpMalformedHeaderException e) {
+                replacedMessage.setRequestHeader(requestHeaderReplacement.getReplacedValue());
+            } catch (HttpMalformedHeaderException | JWTException e) {
                 throw new InvalidMessageException(e);
             }
         }
 
         if (requestBodyReplacement != null) {
-            replacedMessage.setRequestBody(requestBodyReplacement.toString());
+            try {
+                replacedMessage.setRequestBody(requestBodyReplacement.getReplacedValue());
+            } catch (JWTException e) {
+                throw new InvalidMessageException(e);
+            }
         }
 
         if (responseHeaderReplacement != null) {
             try {
-                replacedMessage.setResponseHeader(responseHeaderReplacement.toString());
-            } catch (HttpMalformedHeaderException e) {
+                replacedMessage.setResponseHeader(responseHeaderReplacement.getReplacedValue());
+            } catch (HttpMalformedHeaderException | JWTException e) {
                 throw new InvalidMessageException(e);
             }
         }
 
         if (responseBodyReplacement != null) {
-            replacedMessage.setResponseBody(responseBodyReplacement.toString());
+            try {
+                replacedMessage.setResponseBody(responseBodyReplacement.getReplacedValue());
+            } catch (JWTException e) {
+                throw new InvalidMessageException(e);
+            }
         }
 
         return replacedMessage;
@@ -162,9 +175,30 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
 
         private StringBuilder value;
         private int offset;
+        private JWTHolder jwtHolder;
+        private FuzzerJWTSignatureOperation fuzzerJWTSignatureOperation;
+        private JWTMessageLocation jwtMessageLocation;
 
-        private Replacer(String originalValue) {
+        /**
+         * This constructor accepts the {@code JWTMessageLocation} to use the common properties
+         * which are same for all the {@code JWTMessageLocation}s like JWT Token and Signature
+         * Operation.
+         *
+         * @param originalValue
+         * @param jwtMessageLocation
+         * @throws InvalidMessageException
+         */
+        private Replacer(String originalValue, JWTMessageLocation jwtMessageLocation)
+                throws InvalidMessageException {
             value = new StringBuilder(originalValue);
+            try {
+                this.jwtHolder = JWTHolder.parseJWTToken(jwtMessageLocation.getValue());
+                this.jwtMessageLocation = jwtMessageLocation;
+                this.fuzzerJWTSignatureOperation =
+                        jwtMessageLocation.getFuzzerJWTSignatureOperation();
+            } catch (JWTException e) {
+                throw new InvalidMessageException(e);
+            }
         }
 
         private RSAPrivateKey getRSAPrivateKey() throws JWTException {
@@ -185,13 +219,11 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                 throws JWTException {
             boolean isHeaderField = jwtMessageLocation.isHeaderField();
             String key = jwtMessageLocation.getKey();
-            String jwtToken = jwtMessageLocation.getValue();
-            JWTHolder jwtHolder = JWTHolder.parseJWTToken(jwtToken);
             JSONObject jsonObject;
             if (isHeaderField) {
-                jsonObject = new JSONObject(jwtHolder.getHeader());
+                jsonObject = new JSONObject(this.jwtHolder.getHeader());
             } else {
-                jsonObject = new JSONObject(jwtHolder.getPayload());
+                jsonObject = new JSONObject(this.jwtHolder.getPayload());
             }
             jsonObject.remove(key);
             jsonObject.put(key, value);
@@ -200,14 +232,19 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
             } else {
                 jwtHolder.setPayload(jsonObject.toString());
             }
-            if (jwtMessageLocation
-                    .getFuzzerJWTSignatureOperation()
-                    .equals(FuzzerJWTSignatureOperation.NO_SIGNATURE)) {
+        }
+
+        /**
+         * @return value after replacing JWT present in originalValue with fuzzed token.
+         * @throws JWTException is thrown if algorithm to sign the fuzzed token is invalid.
+         */
+        public String getReplacedValue() throws JWTException {
+            String jwtToken = null;
+            if (this.fuzzerJWTSignatureOperation.equals(FuzzerJWTSignatureOperation.NO_SIGNATURE)) {
                 jwtHolder.setSignature(JWTUtils.getBytes(""));
                 jwtToken = jwtHolder.getBase64EncodedToken();
-            } else if (jwtMessageLocation
-                    .getFuzzerJWTSignatureOperation()
-                    .equals(FuzzerJWTSignatureOperation.NEW_SIGNATURE)) {
+            } else if (this.fuzzerJWTSignatureOperation.equals(
+                    FuzzerJWTSignatureOperation.NEW_SIGNATURE)) {
                 String algorithm = jwtHolder.getAlgorithm();
                 if (algorithm.startsWith(JWTConstants.JWT_HMAC_ALGORITHM_IDENTIFIER)) {
                     jwtToken =
@@ -224,17 +261,16 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                     throw new JWTException("Unsupported Algorithm type: " + algorithm);
                 }
             }
-            this.value.replace(
-                    offset + jwtMessageLocation.getStart(),
-                    offset + jwtMessageLocation.getEnd(),
-                    jwtToken.trim());
-            offset +=
-                    value.length() - (jwtMessageLocation.getEnd() - jwtMessageLocation.getStart());
-        }
-
-        @Override
-        public String toString() {
-            return value.toString();
+            if (jwtToken != null) {
+                this.value.replace(
+                        offset + jwtMessageLocation.getStart(),
+                        offset + jwtMessageLocation.getEnd(),
+                        jwtToken.trim());
+                offset +=
+                        value.length()
+                                - (jwtMessageLocation.getEnd() - jwtMessageLocation.getStart());
+            }
+            return this.value.toString();
         }
     }
 }

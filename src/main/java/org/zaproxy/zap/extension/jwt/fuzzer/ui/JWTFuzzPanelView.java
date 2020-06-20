@@ -129,18 +129,18 @@ public class JWTFuzzPanelView
     }
 
     private void init(JPanel contentPanel) {
-        contentPanel.add(this.getJWTCommonPropertiesPanel());
+        contentPanel.add(this.getJWTCommonConfigurationPanel());
         contentPanel.add(this.getFuzzerPanel());
     }
 
-    private JPanel getJWTCommonPropertiesPanel() {
+    private JPanel getJWTCommonConfigurationPanel() {
         JPanel commonPropertiesPanel = new JPanel();
         GridBagLayout gridBagLayout = new GridBagLayout();
         commonPropertiesPanel.setLayout(gridBagLayout);
         commonPropertiesPanel.setBorder(
                 BorderFactory.createTitledBorder(
                         null,
-                        "Common Properties",
+                        JWTI18n.getMessage("jwt.fuzzer.panel.commonConfiguration"),
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         TitledBorder.DEFAULT_POSITION,
                         FontUtils.getFont(FontUtils.Size.standard)));
@@ -177,7 +177,7 @@ public class JWTFuzzPanelView
         fuzzerPanel.setBorder(
                 BorderFactory.createTitledBorder(
                         null,
-                        "JWT Fields",
+                        JWTI18n.getMessage("jwt.fuzzer.panel.jwtProperties"),
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         TitledBorder.DEFAULT_POSITION,
                         FontUtils.getFont(FontUtils.Size.standard)));
