@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -40,10 +39,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.border.TitledBorder;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -58,9 +55,10 @@ import org.zaproxy.zap.extension.jwt.exception.JWTException;
 import org.zaproxy.zap.extension.jwt.fuzzer.messagelocations.FuzzerJWTSignatureOperation;
 import org.zaproxy.zap.extension.jwt.fuzzer.messagelocations.JWTMessageLocation;
 import org.zaproxy.zap.extension.jwt.utils.JWTConstants;
+import org.zaproxy.zap.extension.jwt.utils.JWTUIUtils;
+import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 import org.zaproxy.zap.model.HttpMessageLocation.Location;
 import org.zaproxy.zap.model.MessageLocation;
-import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightsManager;
@@ -71,8 +69,8 @@ import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager
 
 /**
  * This class {@code JWTFuzzPanelView} is JWT Fuzzer View which is used for selecting {@code
- * JWTMessageLocation} which is used fuzzing the JWT token. it will parse the JWT and gives user a
- * way to fuzz header and payload Json object using various payload generators.
+ * JWTMessageLocation} which is used for fuzzing the JWT token. it will parse the JWT and gives user
+ * a way to fuzz header and payload Json object using various payload generators.
  *
  * @author preetkaran20@gmail.com KSASAN
  */
@@ -85,6 +83,7 @@ public class JWTFuzzPanelView
 
     private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
     private JScrollPane contentScrollPane;
+    private JPanel contentPanel;
     private JPanel fuzzerPanel;
     private JComboBox<String> jwtComboBox;
     private JComboBox<String> jwtComponentType;
@@ -106,31 +105,16 @@ public class JWTFuzzPanelView
     }
 
     public JWTFuzzPanelView(ViewComponent viewComponent) {
-        JPanel contentPanel = new JPanel();
+        contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentScrollPane =
                 new JScrollPane(
                         contentPanel,
                         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        init(contentPanel);
-        this.viewComponent = viewComponent;
-    }
-
-    private GridBagConstraints getGridBagConstraints() {
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.weightx = 1.0D;
-        gridBagConstraints.weighty = 1.0D;
-        return gridBagConstraints;
-    }
-
-    private void init(JPanel contentPanel) {
         contentPanel.add(this.getJWTCommonConfigurationPanel());
         contentPanel.add(this.getFuzzerPanel());
+        this.viewComponent = viewComponent;
     }
 
     private JPanel getJWTCommonConfigurationPanel() {
@@ -138,13 +122,8 @@ public class JWTFuzzPanelView
         GridBagLayout gridBagLayout = new GridBagLayout();
         commonPropertiesPanel.setLayout(gridBagLayout);
         commonPropertiesPanel.setBorder(
-                BorderFactory.createTitledBorder(
-                        null,
-                        JWTI18n.getMessage("jwt.fuzzer.panel.commonConfiguration"),
-                        TitledBorder.DEFAULT_JUSTIFICATION,
-                        TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard)));
-        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+                JWTUIUtils.getTitledBorder("jwt.fuzzer.panel.commonConfiguration"));
+        GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
         gridBagConstraints.gridx = 0;
         commonPropertiesPanel.add(
                 new JLabel(JWTI18n.getMessage("jwt.settings.title"), JLabel.CENTER),
@@ -169,20 +148,14 @@ public class JWTFuzzPanelView
     }
 
     private <T> void addActionListenerToRequestFocus(JComboBox<T> comboBox) {
-        comboBox.addActionListener((e) -> fuzzerPanel.requestFocusInWindow());
+        comboBox.addActionListener((e) -> contentPanel.requestFocusInWindow());
     }
 
     private JPanel getFuzzerPanel() {
         fuzzerPanel = new JPanel();
-        fuzzerPanel.setBorder(
-                BorderFactory.createTitledBorder(
-                        null,
-                        JWTI18n.getMessage("jwt.fuzzer.panel.jwtProperties"),
-                        TitledBorder.DEFAULT_JUSTIFICATION,
-                        TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard)));
+        fuzzerPanel.setBorder(JWTUIUtils.getTitledBorder("jwt.fuzzer.panel.jwtProperties"));
         GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagConstraints = this.getGridBagConstraints();
+        gridBagConstraints = JWTUIUtils.getGridBagConstraints();
         fuzzerPanel.setLayout(gridBagLayout);
 
         JLabel componentLabel =
@@ -208,10 +181,8 @@ public class JWTFuzzPanelView
                     comboBoxKeyAndJwtMap.get(jwtComboBox.getSelectedItem().toString());
             try {
                 JWTHolder jwtHolder = JWTHolder.parseJWTToken(selectedItem);
-                jwtComponentType.removeAllItems();
-                ;
                 jwtComponentType.addItem(JWTI18n.getMessage(HEADER_COMPONENT_LABEL));
-                if (isValidJson(jwtHolder.getPayload())) {
+                if (JWTUtils.isValidJson(jwtHolder.getPayload())) {
                     jwtComponentType.addItem(JWTI18n.getMessage(PAYLOAD_COMPONENT_LABEL));
                 }
                 jwtComponentType.setSelectedIndex(0);
@@ -227,23 +198,21 @@ public class JWTFuzzPanelView
                 JSONObject jsonObject = new JSONObject(jwtComponentValue);
                 Vector<String> keys = new Vector<>();
                 keys.addAll(jsonObject.keySet());
-                jwtComponentJsonKeysComboBox.removeAllItems();
                 for (String key : keys) {
                     jwtComponentJsonKeysComboBox.addItem(key);
                 }
                 jwtComponentJsonKeysComboBox.setSelectedIndex(0);
-                fuzzerPanel.revalidate();
                 jwtComponentType.addActionListener(getJWTComponentTypeActionListener(jwtHolder));
             } catch (Exception e) {
                 LOGGER.error("Error Occurred: ", e);
             }
         } else {
-            resetCurrentJWTMessageLocationUI();
+            resetFuzzerPanelSection();
         }
         fuzzerPanel.revalidate();
     }
 
-    private void resetCurrentJWTMessageLocationUI() {
+    private void resetFuzzerPanelSection() {
         if (jwtComponentJsonKeysComboBox != null) {
             jwtComponentJsonKeysComboBox.removeAllItems();
             fuzzerPanel.remove(jwtComponentJsonKeysComboBox);
@@ -253,19 +222,15 @@ public class JWTFuzzPanelView
             jwtComponentType.removeAllItems();
             fuzzerPanel.remove(jwtComponentType);
         }
-
-        if (jwtSignatureOperationCheckBox != null) {
-            fuzzerPanel.remove(jwtSignatureOperationCheckBox);
-        }
     }
 
     private ActionListener getJWTComponentTypeActionListener(JWTHolder jwtHolder) {
         return (e) -> {
-            String handle = jwtHolder.getHeader();
+            String jwtComponentValue = jwtHolder.getHeader();
             if (jwtComponentType.getSelectedIndex() == 1) {
-                handle = jwtHolder.getPayload();
+                jwtComponentValue = jwtHolder.getPayload();
             }
-            JSONObject jsonObject = new JSONObject(handle);
+            JSONObject jsonObject = new JSONObject(jwtComponentValue);
             Vector<String> keys = new Vector<>();
             keys.addAll(jsonObject.keySet());
             jwtComponentJsonKeysComboBox.removeAllItems();
@@ -273,7 +238,6 @@ public class JWTFuzzPanelView
                 jwtComponentJsonKeysComboBox.addItem(key);
             }
             jwtComponentJsonKeysComboBox.setSelectedIndex(0);
-            fuzzerPanel.revalidate();
         };
     }
 
@@ -322,7 +286,7 @@ public class JWTFuzzPanelView
     @Override
     public void setSelected(boolean selected) {
         if (selected) {
-            this.fuzzerPanel.requestFocusInWindow();
+            this.contentPanel.requestFocusInWindow();
         }
     }
 
@@ -334,17 +298,8 @@ public class JWTFuzzPanelView
         return new RequestStringHttpPanelViewModel();
     }
 
-    private boolean isValidJson(String value) {
-        try {
-            new JSONObject(value);
-        } catch (JSONException ex) {
-            return false;
-        }
-        return true;
-    }
-
     public void populateJWTTokens(String httpMessageString) {
-        Matcher matcher = JWTConstants.JWT_TOKEN_REGEX_FIND_PATTERN.matcher(httpMessageString);
+        Matcher matcher = JWTConstants.JWT_TOKEN_REGEX_PATTERN.matcher(httpMessageString);
         while (matcher.find()) {
             String jwtToken = matcher.group().trim();
             String key = jwtToken;
@@ -353,7 +308,7 @@ public class JWTFuzzPanelView
                 // As Header of JWT is always JSON so header component should be a valid JSON Object
                 // for the token to qualify
                 // as valid JWT.
-                if (isValidJson(jwtHolder.getHeader())) {
+                if (JWTUtils.isValidJson(jwtHolder.getHeader())) {
                     if (key.length() > 30) {
                         key = jwtToken.substring(0, 30);
                     }
@@ -366,6 +321,7 @@ public class JWTFuzzPanelView
     }
 
     public void setMessage(Message message) {
+        this.message = (HttpMessage) message;
         if (viewComponent == ViewComponent.HEADER) {
             this.populateJWTTokens(this.message.getRequestHeader().toString());
         } else if (viewComponent == ViewComponent.BODY) {
@@ -386,7 +342,6 @@ public class JWTFuzzPanelView
     @Override
     public boolean isEnabled(Message message) {
         if (message != null) {
-            this.message = (HttpMessage) message;
             setMessage(message);
             if (jwtComboBox.getItemCount() > 1) {
                 return true;
@@ -431,9 +386,6 @@ public class JWTFuzzPanelView
             location = Location.REQUEST_HEADER;
         } else {
             location = Location.REQUEST_BODY;
-        }
-
-        if (startIndex < 0) {
             startIndex = this.message.getRequestBody().toString().indexOf(jwt);
         }
         JWTMessageLocation jwtMessageLocation =
@@ -446,9 +398,6 @@ public class JWTFuzzPanelView
                         isHeaderComponent,
                         (FuzzerJWTSignatureOperation)
                                 (jwtSignatureOperationCheckBox.getSelectedItem()));
-        List<Component> components =
-                Arrays.asList(this.jwtComponentType, this.jwtComponentJsonKeysComboBox);
-        this.jwtMessageLocationAndRelatedComponentsMap.put(jwtMessageLocation, components);
         return jwtMessageLocation;
     }
 
@@ -513,7 +462,7 @@ public class JWTFuzzPanelView
             focusListenerAdapter =
                     new GenericCriteriaBasedMessageLocationProducerFocusListenerAdapter(
                             this, getFocusListenerCriteria());
-            fuzzerPanel.addFocusListener(focusListenerAdapter);
+            contentPanel.addFocusListener(focusListenerAdapter);
         }
         return focusListenerAdapter;
     }
@@ -526,11 +475,11 @@ public class JWTFuzzPanelView
     @Override
     public MessageLocationHighlight highlight(
             MessageLocation location, MessageLocationHighlight highlight) {
-        if (jwtMessageLocationAndRelatedComponentsMap.containsKey(location)) {
-            this.jwtMessageLocationAndRelatedComponentsMap
-                    .get(location)
-                    .forEach((component) -> component.setEnabled(false));
-        }
+        List<Component> components =
+                Arrays.asList(this.jwtComponentType, this.jwtComponentJsonKeysComboBox);
+        this.jwtMessageLocationAndRelatedComponentsMap.put(
+                (JWTMessageLocation) location, components);
+        components.forEach((component) -> component.setEnabled(false));
         addNewFuzzerFieldsRow();
         if (jwtMessageLocationAndRelatedComponentsMap.size() > 0) {
             this.jwtComboBox.setEnabled(false);

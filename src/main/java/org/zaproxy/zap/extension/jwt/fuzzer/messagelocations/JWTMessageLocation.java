@@ -112,11 +112,6 @@ public class JWTMessageLocation extends DefaultTextHttpMessageLocation implement
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result =
-                prime * result
-                        + ((fuzzerJWTSignatureOperation == null)
-                                ? 0
-                                : fuzzerJWTSignatureOperation.hashCode());
         result = prime * result + (isHeaderField ? 1231 : 1237);
         result = prime * result + ((key == null) ? 0 : key.hashCode());
         return result;
@@ -128,7 +123,6 @@ public class JWTMessageLocation extends DefaultTextHttpMessageLocation implement
         if (!super.equals(obj)) return false;
         if (getClass() != obj.getClass()) return false;
         JWTMessageLocation other = (JWTMessageLocation) obj;
-        if (fuzzerJWTSignatureOperation != other.fuzzerJWTSignatureOperation) return false;
         if (isHeaderField != other.isHeaderField) return false;
         if (key == null) {
             if (other.key != null) return false;
@@ -153,7 +147,6 @@ public class JWTMessageLocation extends DefaultTextHttpMessageLocation implement
             return result;
         }
 
-        result = this.fuzzerJWTSignatureOperation.compareTo(that.fuzzerJWTSignatureOperation);
         if (result != 0) {
             return result;
         }

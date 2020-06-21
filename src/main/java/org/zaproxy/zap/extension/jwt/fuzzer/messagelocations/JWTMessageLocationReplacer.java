@@ -19,20 +19,10 @@
  */
 package org.zaproxy.zap.extension.jwt.fuzzer.messagelocations;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.SortedSet;
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
 import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacement;
 import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacer;
 import org.zaproxy.zap.extension.jwt.JWTConfiguration;
@@ -77,8 +67,6 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
 
         Replacer requestHeaderReplacement = null;
         Replacer requestBodyReplacement = null;
-        Replacer responseHeaderReplacement = null;
-        Replacer responseBodyReplacement = null;
 
         Replacer currentReplacement = null;
         for (MessageLocationReplacement<?> replacement : replacements) {
@@ -105,33 +93,13 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                     }
                     currentReplacement = requestBodyReplacement;
                     break;
-                case RESPONSE_HEADER:
-                    if (responseHeaderReplacement == null) {
-                        responseHeaderReplacement =
-                                new Replacer(
-                                        message.getResponseHeader().toString(), jwtMessageLocation);
-                    }
-                    currentReplacement = responseHeaderReplacement;
-                    break;
-                case RESPONSE_BODY:
-                    if (responseBodyReplacement == null) {
-                        responseBodyReplacement =
-                                new Replacer(
-                                        message.getResponseBody().toString(), jwtMessageLocation);
-                    }
-                    currentReplacement = responseBodyReplacement;
-                    break;
                 default:
                     currentReplacement = null;
             }
 
             if (currentReplacement != null) {
-                try {
-                    currentReplacement.replace(
-                            jwtMessageLocation, replacement.getReplacement().toString());
-                } catch (JWTException e) {
-                    throw new InvalidMessageException(e);
-                }
+                currentReplacement.replace(
+                        jwtMessageLocation, replacement.getReplacement().toString());
             }
         }
 
@@ -147,22 +115,6 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
         if (requestBodyReplacement != null) {
             try {
                 replacedMessage.setRequestBody(requestBodyReplacement.getReplacedValue());
-            } catch (JWTException e) {
-                throw new InvalidMessageException(e);
-            }
-        }
-
-        if (responseHeaderReplacement != null) {
-            try {
-                replacedMessage.setResponseHeader(responseHeaderReplacement.getReplacedValue());
-            } catch (HttpMalformedHeaderException | JWTException e) {
-                throw new InvalidMessageException(e);
-            }
-        }
-
-        if (responseBodyReplacement != null) {
-            try {
-                replacedMessage.setResponseBody(responseBodyReplacement.getReplacedValue());
             } catch (JWTException e) {
                 throw new InvalidMessageException(e);
             }
@@ -201,22 +153,18 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
             }
         }
 
-        private RSAPrivateKey getRSAPrivateKey() throws JWTException {
-            File pemFile =
-                    new File(JWTConfiguration.getInstance().getRsaPrivateKeyFileChooserPath());
-            try {
-                String certAndKey = FileUtils.readFileToString(pemFile, StandardCharsets.US_ASCII);
-                byte[] keyBytes = SslCertificateUtils.extractPrivateKey(certAndKey);
-                PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-                KeyFactory factory = KeyFactory.getInstance("RSA");
-                return (RSAPrivateKey) factory.generatePrivate(spec);
-            } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new JWTException("Error occurred: ", e);
-            }
-        }
-
-        public void replace(JWTMessageLocation jwtMessageLocation, String value)
-                throws JWTException {
+        /**
+         * This method is used to replace the value (Request's {@code Header} or {@code Body}) with
+         * the provided fuzzed values at location specified by {@code JWTMessageLocation}. This
+         * method picks the JSON Key field and its location i.e. in JWT's {@code Header} or {@code
+         * Payload} from provided {@param jwtMessageLocation} and then modified the JWT Holder which
+         * is common for all the {@code JWTMessageLocation}'s.
+         *
+         * @param jwtMessageLocation JWTMessageLocation which represents the modification/fuzzer
+         *     strategy
+         * @param value Fuzzed value to replace the original JSON Key field's value present in JWT.
+         */
+        public void replace(JWTMessageLocation jwtMessageLocation, String value) {
             boolean isHeaderField = jwtMessageLocation.isHeaderField();
             String key = jwtMessageLocation.getKey();
             JSONObject jsonObject;
@@ -235,8 +183,16 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
         }
 
         /**
-         * @return value after replacing JWT present in originalValue with fuzzed token.
-         * @throws JWTException is thrown if algorithm to sign the fuzzed token is invalid.
+         * After all the modification done to {@code JWTHolder} by {@link
+         * this#replace(JWTMessageLocation, String)} method, this method is used to sign fuzzed
+         * {@code JWT} using the strategy provided by by {@code FuzzerJWTSignatureOperation} and the
+         * replacing original {@code JWT} with Fuzzed {@code JWT}.
+         *
+         * @return fuzzed value (Request's {@code Header} or {@code Body}) after replacing JWT
+         *     present in originalValue (Original Request's {@code Header} or {@code body}) with
+         *     fuzzed JWT.
+         * @throws JWTException is thrown if algorithm to sign the fuzzed token is unsupported or
+         *     invalid.
          */
         public String getReplacedValue() throws JWTException {
             String jwtToken = null;
@@ -256,7 +212,11 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
                                     algorithm);
                 } else if (algorithm.startsWith(JWTConstants.JWT_RSA_ALGORITHM_IDENTIFIER)) {
                     jwtToken =
-                            JWTUtils.getBase64EncodedRSSignedToken(jwtHolder, getRSAPrivateKey());
+                            JWTUtils.getBase64EncodedRSSignedToken(
+                                    jwtHolder,
+                                    JWTUtils.getRSAPrivateKeyFromProvidedPEMFilePath(
+                                            JWTConfiguration.getInstance()
+                                                    .getRsaPrivateKeyFileChooserPath()));
                 } else {
                     throw new JWTException("Unsupported Algorithm type: " + algorithm);
                 }

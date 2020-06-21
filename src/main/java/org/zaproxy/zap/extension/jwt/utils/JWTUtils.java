@@ -25,24 +25,34 @@ import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.BEARER_TOKEN_REGE
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_RSA_ALGORITHM_IDENTIFIER;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_RSA_PSS_ALGORITHM_IDENTIFIER;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_PERIOD_CHARACTER;
-import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_REGEX_VALIDATOR_PATTERN;
+import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_REGEX_PATTERN;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.util.Base64URL;
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
 import org.zaproxy.zap.extension.jwt.JWTHolder;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
 
@@ -128,7 +138,7 @@ public class JWTUtils {
         if (Objects.isNull(jwtToken)) {
             return false;
         }
-        return JWT_TOKEN_REGEX_VALIDATOR_PATTERN.matcher(jwtToken).matches();
+        return JWT_TOKEN_REGEX_PATTERN.matcher(jwtToken).matches();
     }
 
     /**
@@ -211,6 +221,28 @@ public class JWTUtils {
         return null;
     }
 
+    /**
+     * Utility method for reading the PEM file and building RSAPrivateKey from it.
+     *
+     * @param pemFilePath PEM File Path which contains the RSA Private Key
+     * @return RSAPrivateKey by reading PEM file containing the RSA Private Key.
+     * @throws JWTException if unable to read the provided file path or key specification is
+     *     incorrect etc.
+     */
+    public static RSAPrivateKey getRSAPrivateKeyFromProvidedPEMFilePath(String pemFilePath)
+            throws JWTException {
+        File pemFile = new File(pemFilePath);
+        try {
+            String certAndKey = FileUtils.readFileToString(pemFile, StandardCharsets.US_ASCII);
+            byte[] keyBytes = SslCertificateUtils.extractPrivateKey(certAndKey);
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            return (RSAPrivateKey) factory.generatePrivate(spec);
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new JWTException("Error occurred: ", e);
+        }
+    }
+
     private static boolean hasBearerToken(String value) {
         return Pattern.compile(BEARER_TOKEN_REGEX).matcher(value).find();
     }
@@ -243,5 +275,20 @@ public class JWTUtils {
             jwtToken = BEARER_TOKEN_KEY + " " + jwtToken;
         }
         return jwtToken;
+    }
+
+    /**
+     * This utility method is used to check the provided String is a valid JSON or not.
+     *
+     * @param value JSON String
+     * @return true if provided value is a valid JSON else false.
+     */
+    public static boolean isValidJson(String value) {
+        try {
+            new JSONObject(value);
+        } catch (JSONException ex) {
+            return false;
+        }
+        return true;
     }
 }

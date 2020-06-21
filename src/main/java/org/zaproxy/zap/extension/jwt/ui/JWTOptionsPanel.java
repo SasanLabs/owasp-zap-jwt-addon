@@ -28,7 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,7 +44,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.jwt.JWTConfiguration;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
-import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.extension.jwt.utils.JWTUIUtils;
 
 /**
  * JWT options panel for specifying settings which are used by {@code JWTActiveScanner} and {@code
@@ -69,9 +68,9 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
     /** JWT Fuzzer Options * */
     private JPasswordField jwtHMacSignatureKey;
+
     /**
      * Going ahead with .pem format for private keys instead of .p12 format because of ease of use.
-     * *
      */
     // TODO Need to move truststore also to .pem format.
     private String jwtRsaPrivateKeyFileChooserPath;
@@ -167,33 +166,13 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStoreFileChooserTextField.setColumns(15);
     }
 
-    private GridBagConstraints getGridBagConstraints() {
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.fill = GridBagConstraints.NONE;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.weightx = 1.0D;
-        gridBagConstraints.weighty = 1.0D;
-        return gridBagConstraints;
-    }
-
-    private TitledBorder getTitledBorder(String titleKey) {
-        return BorderFactory.createTitledBorder(
-                null,
-                JWTI18n.getMessage(titleKey),
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                FontUtils.getFont(FontUtils.Size.standard));
-    }
-
     private JPanel rsaSettingsSection() {
         JPanel rsaPanel = new JPanel();
         rsaPanel.setSize(rsaPanel.getPreferredSize());
         GridBagLayout gridBagLayout = new GridBagLayout();
         rsaPanel.setLayout(gridBagLayout);
-        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
-        TitledBorder rsaPanelBorder = this.getTitledBorder("jwt.settings.rsa.header");
+        GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
+        TitledBorder rsaPanelBorder = JWTUIUtils.getTitledBorder("jwt.settings.rsa.header");
         rsaPanel.setBorder(rsaPanelBorder);
         JLabel lblTrustStorePathAttribute =
                 new JLabel(JWTI18n.getMessage("jwt.settings.rsa.trustStorePath"));
@@ -232,7 +211,8 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
     private JPanel generalSettingsSection() {
         JPanel generalSettingsPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        TitledBorder generalSettingsBorder = this.getTitledBorder("jwt.settings.general.header");
+        TitledBorder generalSettingsBorder =
+                JWTUIUtils.getTitledBorder("jwt.settings.general.header");
         generalSettingsPanel.setBorder(generalSettingsBorder);
         enableClientConfigurationScanCheckBox =
                 new JCheckBox(
@@ -243,9 +223,10 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
     private JPanel getFuzzerSettingsSection() {
         JPanel fuzzerSettingsPanel = new JPanel(new GridBagLayout());
-        TitledBorder fuzzerSettingsBorder = this.getTitledBorder("jwt.settings.fuzzer.header");
+        TitledBorder fuzzerSettingsBorder =
+                JWTUIUtils.getTitledBorder("jwt.settings.fuzzer.header");
         fuzzerSettingsPanel.setBorder(fuzzerSettingsBorder);
-        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
         gridBagConstraints.gridy++;
         fuzzerSettingsPanel.add(getHMACSignaturePanel(), gridBagConstraints);
         gridBagConstraints.gridy++;
@@ -258,10 +239,10 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         hmacSignaturePanel.setLayout(new GridBagLayout());
         hmacSignaturePanel.setSize(hmacSignaturePanel.getPreferredSize());
         TitledBorder hmacSignaturePanelBorder =
-                this.getTitledBorder("jwt.settings.fuzzer.hmac.signature.configuration");
+                JWTUIUtils.getTitledBorder("jwt.settings.fuzzer.hmac.signature.configuration");
 
         hmacSignaturePanel.setBorder(hmacSignaturePanelBorder);
-        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
         JLabel jwtHmacPrivateKeyLabel = new JLabel("Key");
         jwtHMacSignatureKey = new JPasswordField();
         jwtHMacSignatureKey.setEditable(true);
@@ -279,9 +260,9 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         rsaSignaturePanel.setLayout(new GridBagLayout());
         rsaSignaturePanel.setSize(rsaSignaturePanel.getPreferredSize());
         TitledBorder rsaSignaturePanelBorder =
-                this.getTitledBorder("jwt.settings.fuzzer.rsa.signature.configuration");
+                JWTUIUtils.getTitledBorder("jwt.settings.fuzzer.rsa.signature.configuration");
         rsaSignaturePanel.setBorder(rsaSignaturePanelBorder);
-        GridBagConstraints gridBagConstraints = this.getGridBagConstraints();
+        GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
         gridBagConstraints.gridx = 0;
         JLabel jwtRsaPrivateKeyLabel = new JLabel("Private Key");
         JButton jwtRsaPrivateKeyFileChooserButton = new JButton("Select...");
