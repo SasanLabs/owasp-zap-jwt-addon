@@ -243,7 +243,8 @@ public class JWTOptionsPanel extends AbstractParamPanel {
 
         hmacSignaturePanel.setBorder(hmacSignaturePanelBorder);
         GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
-        JLabel jwtHmacPrivateKeyLabel = new JLabel("Key");
+        JLabel jwtHmacPrivateKeyLabel =
+                new JLabel(JWTI18n.getMessage("jwt.settings.hmac.hmacPrivateKey"));
         jwtHMacSignatureKey = new JPasswordField();
         jwtHMacSignatureKey.setEditable(true);
         jwtHMacSignatureKey.setColumns(15);
@@ -264,8 +265,10 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         rsaSignaturePanel.setBorder(rsaSignaturePanelBorder);
         GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
         gridBagConstraints.gridx = 0;
-        JLabel jwtRsaPrivateKeyLabel = new JLabel("Private Key");
-        JButton jwtRsaPrivateKeyFileChooserButton = new JButton("Select...");
+        JLabel jwtRsaPrivateKeyLabel =
+                new JLabel(JWTI18n.getMessage("jwt.settings.rsa.rsaPrivateKey"));
+        JButton jwtRsaPrivateKeyFileChooserButton =
+                new JButton(JWTI18n.getMessage("jwt.settings.filechooser.button"));
         jwtRsaPrivateKeyFileChooserTextField = new JTextField();
         jwtRsaPrivateKeyFileChooserTextField.setEditable(false);
         jwtRsaPrivateKeyFileChooserTextField.setColumns(15);

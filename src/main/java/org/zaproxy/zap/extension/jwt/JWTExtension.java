@@ -48,17 +48,16 @@ import org.zaproxy.zap.view.HttpPanelManager;
 public class JWTExtension extends ExtensionAdaptor {
 
     protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
-
     private static final List<Class<? extends Extension>> DEPENDENCIES;
-
-    private HttpFuzzerHandler httpFuzzerHandler;
-    private JWTMessageLocationReplacerFactory jwtMessageLocationReplacerFactory;
 
     static {
         List<Class<? extends Extension>> dependencies = new ArrayList<>(1);
         dependencies.add(ExtensionHttpFuzzer.class);
         DEPENDENCIES = Collections.unmodifiableList(dependencies);
     }
+
+    private HttpFuzzerHandler httpFuzzerHandler;
+    private JWTMessageLocationReplacerFactory jwtMessageLocationReplacerFactory;
 
     @Override
     public List<Class<? extends Extension>> getDependencies() {

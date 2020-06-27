@@ -27,8 +27,8 @@ import org.zaproxy.zap.extension.jwt.JWTI18n;
  * Following are the operations on the Signatures:
  *
  * <ol>
- *   <li>Either no signature component will be added to JWT token e.g. in case of {@code None}
- *       hashing algorithm we don't require the signature component.
+ *   <li>Either no signature component will be added to JWT e.g. in case of {@code None} hashing
+ *       algorithm we don't require the signature component.
  *   <li>Generating new signature for the fuzzed token. This is useful for finding vulnerabilities
  *       in JWT fields where say a field value cause {@code SQLInjection} kind of vulnerabilities.
  *   <li>Using the same old signature for the fuzzed JWT too.

@@ -69,8 +69,8 @@ import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager
 
 /**
  * This class {@code JWTFuzzPanelView} is JWT Fuzzer View which is used for selecting {@code
- * JWTMessageLocation} which is used for fuzzing the JWT token. it will parse the JWT and gives user
- * a way to fuzz header and payload Json object using various payload generators.
+ * JWTMessageLocation} which is used for fuzzing the JWT. it will parse the JWT and gives user a way
+ * to fuzz header and payload Json object using various payload generators.
  *
  * @author preetkaran20@gmail.com KSASAN
  */
@@ -315,7 +315,7 @@ public class JWTFuzzPanelView
                     comboBoxKeyAndJwtMap.put(key.concat("..."), jwtToken);
                 }
             } catch (Exception e) {
-                LOGGER.debug("Not a valid JWT Token", e);
+                LOGGER.debug("Not a valid JWT", e);
             }
         }
     }

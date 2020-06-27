@@ -25,7 +25,7 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 
 /**
  * {@code JWTFuzzPanelViewFactory} is used for creating {@link JWTFuzzPanelView} which is used for
- * representing the JWT token present in the Request.
+ * representing the JWT present in the Request.
  *
  * @author preetkaran20@gmail.com KSASAN
  */

@@ -133,8 +133,7 @@ public class JWTMessageLocationReplacer implements MessageLocationReplacer<HttpM
 
         /**
          * This constructor accepts the {@code JWTMessageLocation} to use the common properties
-         * which are same for all the {@code JWTMessageLocation}s like JWT Token and Signature
-         * Operation.
+         * which are same for all the {@code JWTMessageLocation}s like JWT and Signature Operation.
          *
          * @param originalValue
          * @param jwtMessageLocation
