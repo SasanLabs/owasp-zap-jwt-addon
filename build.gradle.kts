@@ -55,6 +55,9 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:8.3")
 
     compileOnly("org.zaproxy.addon:commonlib:1.0.0")
+    
+    // https://mvnrepository.com/artifact/org.zaproxy.addon/fuzz
+    implementation("org.zaproxy.addon:fuzz:13.0.0")
 
     testImplementation("org.zaproxy.addon:commonlib:1.0.0")
 }
