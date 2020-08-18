@@ -201,7 +201,7 @@ public class JWTActiveScanner extends AbstractAppParamPlugin {
         try {
             this.sendAndReceive(newMsg, false);
             if (newMsg.getResponseHeader().getStatusCode()
-                    		== msg.getResponseHeader().getStatusCode()
+                            == msg.getResponseHeader().getStatusCode()
                     && newMsg.getResponseBody().equals(msg.getResponseBody())) {
                 return true;
             }
