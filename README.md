@@ -35,9 +35,9 @@ Till now this addon contains only JWT Scanner for finding vulnerabilities and ne
 2. Bruteforce attack will be helpful in finding vulnerabilities related to Secret Keys which are used for signing the tokens.
 
 ## Contributing guidelines
-Contributing guidelines are same as [Zaproxy](https://github.com/zaproxy/zaproxy).
+Contributing guidelines are same as [ZAP](https://github.com/zaproxy/zaproxy).
 
 ## Contact Us
-For any Queries/Bugs or Enhancement please raise an issue in this repository or [Zaproxy](https://github.com/zaproxy/zaproxy).
+For any Queries/Bugs or Enhancement please raise an issue in this repository or [ZAP](https://github.com/zaproxy/zaproxy).
 For any other kind of issues please send an email to karan.sasan@owasp.org
 
