@@ -39,5 +39,5 @@ Contributing guidelines are same as [Zaproxy](https://github.com/zaproxy/zaproxy
 
 ## Contact Us
 For any Queries/Bugs or Enhancement please raise an issue in this repository or [Zaproxy](https://github.com/zaproxy/zaproxy).
-For any other kind of issues please send an email to preetkaran20@gmail.com
+For any other kind of issues please send an email to karan.sasan@owasp.org
 
