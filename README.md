@@ -41,3 +41,6 @@ Contributing guidelines are same as [ZAP](https://github.com/zaproxy/zaproxy).
 For any Queries/Bugs or Enhancement please raise an issue in this repository or [ZAP](https://github.com/zaproxy/zaproxy).
 For any other kind of issues please send an email to karan.sasan@owasp.org
 
+## Technical Blog
+[JWT addon blog](https://www.zaproxy.org/blog/2020-09-03-zap-jwt-scanner/)
+
