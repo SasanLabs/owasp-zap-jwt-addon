@@ -5,5 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
-- First version of JWT Extension.
+- First version of JWT Support.
   - Contains scanning rules for basic JWT related vulnerabilities.
+  - Contains JWT Fuzzer for fuzzing the JWT's present in the request.

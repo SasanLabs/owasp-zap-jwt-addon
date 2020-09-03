@@ -22,16 +22,38 @@ package org.zaproxy.zap.extension.jwt.utils;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.BASE64_PADDING_CHARACTER_REGEX;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.BEARER_TOKEN_KEY;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.BEARER_TOKEN_REGEX;
+import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_RSA_ALGORITHM_IDENTIFIER;
+import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_RSA_PSS_ALGORITHM_IDENTIFIER;
+import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_PERIOD_CHARACTER;
 import static org.zaproxy.zap.extension.jwt.utils.JWTConstants.JWT_TOKEN_REGEX_PATTERN;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.util.Base64URL;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.text.ParseException;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
+import org.zaproxy.zap.extension.jwt.JWTHolder;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
 
 /**
@@ -51,6 +73,22 @@ public class JWTUtils {
      */
     public static byte[] getBytes(String token) {
         return token.getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Converts char array to byte array securely. Not using string to byte array manipulation
+     * because of security concerns. This method assumes that token is in UTF-8 charset which is as
+     * per the JWT specifications.
+     *
+     * @param token
+     * @return resultant byte array
+     */
+    public static byte[] getBytes(char[] token) {
+        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(token));
+        byte[] byteArray = new byte[byteBuffer.remaining()];
+        // Populate the provided array
+        byteBuffer.get(byteArray);
+        return byteArray;
     }
 
     /**
@@ -119,7 +157,7 @@ public class JWTUtils {
      * @param token to be signed.
      * @param secretKey used for signing the Hmac token.
      * @param algorithm Hmac signature algorithm e.g. HS256, HS384, HS512
-     * @return base64 encoded Hmac signed token.
+     * @return Final Signed JWT Base64 encoded Hmac signed token.
      * @throws JWTException if provided Hmac algorithm is not supported.
      */
     public static String getBase64EncodedHMACSignedToken(
@@ -135,13 +173,73 @@ public class JWTUtils {
                 byte[] tokenSignature = hmacSHA.doFinal(token);
                 String base64EncodedSignature =
                         JWTUtils.getBase64UrlSafeWithoutPaddingEncodedString(tokenSignature);
-                return base64EncodedSignature;
+                return JWTUtils.getString(token)
+                        + JWT_TOKEN_PERIOD_CHARACTER
+                        + base64EncodedSignature;
             } else {
                 throw new JWTException(algorithm + " is not a supported HMAC algorithm.");
             }
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
             throw new JWTException(
                     "Exception occurred while Signing token: " + getString(token), e);
+        }
+    }
+
+    /**
+     * Signs token using provided {@param privateKey} using RSA Signature algorithm. This method
+     * only handles signing of token using RS*(RSA + Sha*) based algorithm.<br>
+     *
+     * @param jwtHolder Token holder which needs contains the fuzzed values
+     * @param privateKey RSA private Key
+     * @return Final Signed JWT using provided {@param privateKey}.
+     * @throws JWTException
+     */
+    public static String getBase64EncodedRSSignedToken(JWTHolder jwtHolder, PrivateKey privateKey)
+            throws JWTException {
+        if (jwtHolder.getAlgorithm().startsWith(JWT_RSA_ALGORITHM_IDENTIFIER)
+                || jwtHolder.getAlgorithm().startsWith(JWT_RSA_PSS_ALGORITHM_IDENTIFIER)) {
+            String base64EncodedNewHeaderAndPayload =
+                    jwtHolder.getBase64EncodedTokenWithoutSignature();
+            if (privateKey != null) {
+                RSASSASigner rsassaSigner = new RSASSASigner(privateKey);
+                try {
+                    return base64EncodedNewHeaderAndPayload
+                            + JWTConstants.JWT_TOKEN_PERIOD_CHARACTER
+                            + rsassaSigner.sign(
+                                    JWSHeader.parse(
+                                            Base64URL.from(
+                                                    JWTUtils
+                                                            .getBase64UrlSafeWithoutPaddingEncodedString(
+                                                                    jwtHolder.getHeader()))),
+                                    JWTUtils.getBytes(
+                                            jwtHolder.getBase64EncodedTokenWithoutSignature()));
+                } catch (JOSEException | ParseException e) {
+                    throw new JWTException("Error occurred: ", e);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Utility method for reading the PEM file and building RSAPrivateKey from it.
+     *
+     * @param pemFilePath PEM File Path which contains the RSA Private Key
+     * @return RSAPrivateKey by reading PEM file containing the RSA Private Key.
+     * @throws JWTException if unable to read the provided file path or key specification is
+     *     incorrect etc.
+     */
+    public static RSAPrivateKey getRSAPrivateKeyFromProvidedPEMFilePath(String pemFilePath)
+            throws JWTException {
+        File pemFile = new File(pemFilePath);
+        try {
+            String certAndKey = FileUtils.readFileToString(pemFile, StandardCharsets.US_ASCII);
+            byte[] keyBytes = SslCertificateUtils.extractPrivateKey(certAndKey);
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            return (RSAPrivateKey) factory.generatePrivate(spec);
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new JWTException("Error occurred: ", e);
         }
     }
 
@@ -177,5 +275,20 @@ public class JWTUtils {
             jwtToken = BEARER_TOKEN_KEY + " " + jwtToken;
         }
         return jwtToken;
+    }
+
+    /**
+     * This utility method is used to check the provided String is a valid JSON or not.
+     *
+     * @param value JSON String
+     * @return true if provided value is a valid JSON else false.
+     */
+    public static boolean isValidJson(String value) {
+        try {
+            new JSONObject(value);
+        } catch (JSONException ex) {
+            return false;
+        }
+        return true;
     }
 }

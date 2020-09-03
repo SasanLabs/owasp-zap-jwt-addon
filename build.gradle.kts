@@ -34,18 +34,22 @@ version = "1.0.0"
 description = "Detect JWT requests and scan them to find related vulnerabilities"
 
 zapAddOn {
-    addOnName.set("JWT Extension")
+    addOnName.set("JWT Support")
     zapVersion.set("2.9.0")
     addOnStatus.set(AddOnStatus.ALPHA)
 
     manifest {
         author.set("KSASAN preetkaran20@gmail.com")
-
+		repo.set("https://github.com/SasanLabs/owasp-zap-jwt-addon/")
         dependencies {
             addOns {
                 register("commonlib")
+                register("fuzz") {
+    				version.set("13.*")
+				}
             }
         }
+        changesFile.set(tasks.named<ConvertMarkdownToHtml>("generateManifestChanges").flatMap { it.html })
     }
 }
 
@@ -57,7 +61,7 @@ dependencies {
     compileOnly("org.zaproxy.addon:commonlib:1.0.0")
     
     // https://mvnrepository.com/artifact/org.zaproxy.addon/fuzz
-    implementation("org.zaproxy.addon:fuzz:13.0.0")
+    compileOnly("org.zaproxy.addon:fuzz:13.0.0")
 
     testImplementation("org.zaproxy.addon:commonlib:1.0.0")
 }
