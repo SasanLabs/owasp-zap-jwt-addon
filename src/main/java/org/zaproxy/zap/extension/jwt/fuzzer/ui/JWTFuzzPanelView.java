@@ -78,6 +78,7 @@ public class JWTFuzzPanelView
         implements HttpPanelView, MessageLocationProducer, MessageLocationHighlighter {
 
     private static final Logger LOGGER = Logger.getLogger(JWTFuzzPanelView.class);
+    public static final String NAME = "JWTFuzzPanelView";
     private static final String HEADER_COMPONENT_LABEL = "jwt.fuzzer.panel.jwtComponent.header";
     private static final String PAYLOAD_COMPONENT_LABEL = "jwt.fuzzer.panel.jwtComponent.payload";
 
@@ -260,7 +261,7 @@ public class JWTFuzzPanelView
 
     @Override
     public String getName() {
-        return JWTI18n.getMessage("jwt.settings.title");
+        return this.viewComponent != null ? NAME + this.viewComponent : NAME;
     }
 
     @Override
@@ -416,6 +417,7 @@ public class JWTFuzzPanelView
                     jwtHolder = JWTHolder.parseJWTToken(jwt);
                     if ((JWTConstants.JWT_HMAC_ALGO_TO_JAVA_ALGORITHM_MAPPING.containsKey(
                                             jwtHolder.getAlgorithm())
+                                    && JWTConfiguration.getInstance().getHMacSignatureKey() != null
                                     && JWTConfiguration.getInstance().getHMacSignatureKey().length
                                             == 0)
                             || (jwtHolder
@@ -428,6 +430,9 @@ public class JWTFuzzPanelView
                                                     .startsWith(
                                                             JWTConstants
                                                                     .JWT_RSA_PSS_ALGORITHM_IDENTIFIER))
+                                    && JWTConfiguration.getInstance()
+                                                    .getRsaPrivateKeyFileChooserPath()
+                                            != null
                                     && JWTConfiguration.getInstance()
                                                     .getRsaPrivateKeyFileChooserPath()
                                                     .length()

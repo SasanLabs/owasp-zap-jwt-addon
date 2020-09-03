@@ -85,14 +85,14 @@ public class JWTActiveScanner extends AbstractAppParamPlugin {
         newValue = JWTUtils.extractingJWTFromParamValue(newValue);
 
         if (!JWTUtils.isTokenValid(newValue)) {
-            LOGGER.info("Token: " + newValue + " is not a valid JWT token.");
+            LOGGER.debug("Token: " + newValue + " is not a valid JWT token.");
             return;
         }
         // Sending request to save actual response and then compare it with new response
         try {
             sendAndReceive(msg);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.warn("Error occurred while sending the request", e);
             return;
         }
 
@@ -100,7 +100,7 @@ public class JWTActiveScanner extends AbstractAppParamPlugin {
         try {
             jwtHolder = JWTHolder.parseJWTToken(newValue);
         } catch (JWTException e) {
-            LOGGER.error("Unable to parse JWT Token", e);
+            LOGGER.debug("Unable to parse JWT Token", e);
             return;
         }
 
@@ -206,7 +206,7 @@ public class JWTActiveScanner extends AbstractAppParamPlugin {
                 return true;
             }
         } catch (IOException e) {
-            LOGGER.error("Following exception occurred while sending manipulated jwt message", e);
+            LOGGER.warn("Following exception occurred while sending manipulated jwt message", e);
         }
         return false;
     }

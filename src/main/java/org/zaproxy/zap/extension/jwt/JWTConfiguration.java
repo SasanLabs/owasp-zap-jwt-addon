@@ -20,7 +20,7 @@
 package org.zaproxy.zap.extension.jwt;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.common.VersionedAbstractParam;
 
 /**
  * This class holds configuration related to JWT scanner.
@@ -28,13 +28,15 @@ import org.parosproxy.paros.common.AbstractParam;
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
  */
-public class JWTConfiguration extends AbstractParam {
+public class JWTConfiguration extends VersionedAbstractParam {
 
     protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
 
     /** The base configuration key for all JWT configurations. */
     private static final String PARAM_BASE_KEY = "jwt";
 
+    private static final String CONFIG_VERSION_KEY = PARAM_BASE_KEY + VERSION_ATTRIBUTE;
+    private static final int CURRENT_CONFIG_VERSION = 1;
     private static final String PARAM_TRUST_STORE_PATH = PARAM_BASE_KEY + ".trustStorePath";
     private static final String PARAM_TRUST_STORE_PASSWORD = PARAM_BASE_KEY + ".trustStorePassword";
     private static final String PARAM_ENABLE_CLIENT_CONFIGURATION_SCAN =
@@ -109,10 +111,23 @@ public class JWTConfiguration extends AbstractParam {
     }
 
     @Override
-    protected void parse() {
+    protected String getConfigVersionKey() {
+        return CONFIG_VERSION_KEY;
+    }
+
+    @Override
+    protected int getCurrentVersion() {
+        return CURRENT_CONFIG_VERSION;
+    }
+
+    @Override
+    protected void parseImpl() {
         this.setTrustStorePath(getConfig().getString(PARAM_TRUST_STORE_PATH));
         this.setTrustStorePassword(getConfig().getString(PARAM_TRUST_STORE_PASSWORD));
         this.setEnableClientConfigurationScan(
                 getBoolean(PARAM_ENABLE_CLIENT_CONFIGURATION_SCAN, false));
     }
+
+    @Override
+    protected void updateConfigsImpl(int fileVersion) {}
 }
