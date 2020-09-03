@@ -86,20 +86,19 @@ public class JWTExtension extends ExtensionAdaptor {
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
-        MessagePanelManager panelManager =
-                Control.getSingleton()
-                        .getExtensionLoader()
-                        .getExtension(ExtensionFuzz.class)
-                        .getClientMessagePanelManager();
-        panelManager.addViewFactory(RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null));
-        panelManager.addViewFactory(
-                RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.HEADER));
-        panelManager.addViewFactory(
-                RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.BODY));
-        extensionHook.addOptionsParamSet(getJWTConfiguration());
-        extensionHook.getHookView().addOptionPanel(new JWTOptionsPanel());
         ExtensionFuzz extensionFuzz =
                 Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.class);
+        if (this.hasView()) {
+            MessagePanelManager panelManager = extensionFuzz.getClientMessagePanelManager();
+            panelManager.addViewFactory(
+                    RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null));
+            panelManager.addViewFactory(
+                    RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.HEADER));
+            panelManager.addViewFactory(
+                    RequestSplitComponent.NAME, new JWTFuzzPanelViewFactory(ViewComponent.BODY));
+            extensionHook.getHookView().addOptionPanel(new JWTOptionsPanel());
+        }
+        extensionHook.addOptionsParamSet(getJWTConfiguration());
         extensionFuzz.addFuzzerHandler(httpFuzzerHandler);
         LOGGER.debug("JWT Extension loaded successfully");
     }
@@ -109,24 +108,26 @@ public class JWTExtension extends ExtensionAdaptor {
         super.unload();
         ExtensionFuzz extensionFuzz =
                 Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.class);
-        MessagePanelManager panelManager = extensionFuzz.getClientMessagePanelManager();
-        panelManager.removeViewFactory(
-                RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null).getName());
-        panelManager.removeViewFactory(
-                RequestSplitComponent.NAME,
-                new JWTFuzzPanelViewFactory(ViewComponent.HEADER).getName());
-        panelManager.removeViewFactory(
-                RequestSplitComponent.NAME,
-                new JWTFuzzPanelViewFactory(ViewComponent.BODY).getName());
-        panelManager.removeViews(RequestAllComponent.NAME, JWTFuzzPanelView.NAME, null);
-        panelManager.removeViews(
-                RequestAllComponent.NAME,
-                JWTFuzzPanelView.NAME + ViewComponent.HEADER,
-                ViewComponent.HEADER);
-        panelManager.removeViews(
-                RequestAllComponent.NAME,
-                JWTFuzzPanelView.NAME + ViewComponent.BODY,
-                ViewComponent.BODY);
+        if (this.hasView()) {
+            MessagePanelManager panelManager = extensionFuzz.getClientMessagePanelManager();
+            panelManager.removeViewFactory(
+                    RequestAllComponent.NAME, new JWTFuzzPanelViewFactory(null).getName());
+            panelManager.removeViewFactory(
+                    RequestSplitComponent.NAME,
+                    new JWTFuzzPanelViewFactory(ViewComponent.HEADER).getName());
+            panelManager.removeViewFactory(
+                    RequestSplitComponent.NAME,
+                    new JWTFuzzPanelViewFactory(ViewComponent.BODY).getName());
+            panelManager.removeViews(RequestAllComponent.NAME, JWTFuzzPanelView.NAME, null);
+            panelManager.removeViews(
+                    RequestAllComponent.NAME,
+                    JWTFuzzPanelView.NAME + ViewComponent.HEADER,
+                    ViewComponent.HEADER);
+            panelManager.removeViews(
+                    RequestAllComponent.NAME,
+                    JWTFuzzPanelView.NAME + ViewComponent.BODY,
+                    ViewComponent.BODY);
+        }
         MessageLocationReplacers.getInstance()
                 .removeReplacer(HttpMessage.class, jwtMessageLocationReplacerFactory);
         extensionFuzz.removeFuzzerHandler(httpFuzzerHandler);
