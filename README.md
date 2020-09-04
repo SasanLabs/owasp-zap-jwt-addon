@@ -35,7 +35,7 @@ For Server-side it mainly covers following vulnerabilities:
 
 ### Fuzzer View
 JWT Fuzzer view is different from HTTP Fuzzer view as JWT's need to be parsed, then JWT field values can be fuzzed. The following is the Fuzzer view:
-![Fuzzer View](./images/fuzzer-view.png)
+![Fuzzer View](./docs/images/fuzzer-view.png)
 
 The **Signature Operation** drop down is used to control the operations on the Signature field of JWT.
 1. **No Signature**: This value is used to remove the signature component from the newly fuzzed JWT.
@@ -47,7 +47,7 @@ The **Component** drop down is used to choose the **Header** or the **Payload** 
 The **Key** drop down is used to choose the fields to be fuzzed in the **Header** or **Payload** components of the JWT.
 
 ### Fuzzer View Animation
-![Fuzzer Animation](./images/fuzzer-animation.gif)
+![Fuzzer Animation](./docs/images/fuzzer-animation.gif)
 
 The JWT add-on is available in the marketplace and can be installed from within ZAP.
 For more information please visit [JWT Support](https://github.com/SasanLabs/owasp-zap-jwt-addon)
