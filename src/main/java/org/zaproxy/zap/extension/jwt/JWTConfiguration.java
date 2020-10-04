@@ -1,5 +1,5 @@
 /*
- * Zed Attack Proxy (ZAP) and its related class files.
+[ * Zed Attack Proxy (ZAP) and its related class files.
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
@@ -19,8 +19,12 @@
  */
 package org.zaproxy.zap.extension.jwt;
 
-import org.apache.log4j.Logger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.zaproxy.zap.common.VersionedAbstractParam;
+import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 
 /**
  * This class holds configuration related to JWT scanner.
@@ -30,7 +34,7 @@ import org.zaproxy.zap.common.VersionedAbstractParam;
  */
 public class JWTConfiguration extends VersionedAbstractParam {
 
-    protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
+    // protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
 
     /** The base configuration key for all JWT configurations. */
     private static final String PARAM_BASE_KEY = "jwt";
@@ -53,7 +57,30 @@ public class JWTConfiguration extends VersionedAbstractParam {
     private boolean enableClientConfigurationScan;
     private static volatile JWTConfiguration jwtConfiguration;
 
-    private JWTConfiguration() {}
+    // There are publicly available well known JWT HMac Secrets.
+    // This URL provides all those secrets.
+    // Special thanks to <a
+    // href="https://lab.wallarm.com/340-weak-jwt-secrets-you-should-check-in-your-code/">Wallarm.com</a>
+    // for collating the list of such weak secrets and making them open-source.
+    private static final List<String> WEAK_KEY_PROVIDER_REGISTRY =
+            Arrays.asList(
+                    "https://raw.githubusercontent.com/wallarm/jwt-secrets/master/jwt.secrets.list");
+    private Map<String, List<String>> urlVsHMacSecrets = new HashMap<>();
+
+    private JWTConfiguration() {
+        init();
+    }
+
+    private void init() {
+        WEAK_KEY_PROVIDER_REGISTRY.stream()
+                .forEach(
+                        (url) -> {
+                            List<String> values = JWTUtils.readFromUrl(url);
+                            if (values != null && values.size() != 0) {
+                                urlVsHMacSecrets.put(url, values);
+                            }
+                        });
+    }
 
     public static JWTConfiguration getInstance() {
         if (jwtConfiguration == null) {
@@ -130,4 +157,14 @@ public class JWTConfiguration extends VersionedAbstractParam {
 
     @Override
     protected void updateConfigsImpl(int fileVersion) {}
+
+    /**
+     * There are publicly available well known JWT HMac Secrets. This API provides all those secrets
+     * and help in finding JWT's signed using these weak secrets.
+     *
+     * @return
+     */
+    public Map<String, List<String>> getUrlVsHMacSecrets() {
+        return urlVsHMacSecrets;
+    }
 }

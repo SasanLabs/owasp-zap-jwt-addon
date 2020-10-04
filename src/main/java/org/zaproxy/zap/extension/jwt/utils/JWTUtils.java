@@ -31,8 +31,11 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.util.Base64URL;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
@@ -44,12 +47,15 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
@@ -290,5 +296,30 @@ public class JWTUtils {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Generic utility to fetch content from the URL and returning the provided content as list of
+     * Strings.
+     *
+     * @param urlSpec
+     * @return
+     */
+    public static List<String> readFromUrl(String urlSpec) {
+        List<String> values = new ArrayList<>();
+        try {
+            URL url = new URL(urlSpec);
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                if (StringUtils.isNotBlank(inputLine)) {
+                    values.add(inputLine);
+                }
+            }
+            in.close();
+        } catch (Exception ex) {
+
+        }
+        return values;
     }
 }
