@@ -1,5 +1,5 @@
 /*
-[ * Zed Attack Proxy (ZAP) and its related class files.
+ * Zed Attack Proxy (ZAP) and its related class files.
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.common.VersionedAbstractParam;
 import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 
@@ -34,7 +35,7 @@ import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
  */
 public class JWTConfiguration extends VersionedAbstractParam {
 
-    // protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
+    protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
 
     /** The base configuration key for all JWT configurations. */
     private static final String PARAM_BASE_KEY = "jwt";
