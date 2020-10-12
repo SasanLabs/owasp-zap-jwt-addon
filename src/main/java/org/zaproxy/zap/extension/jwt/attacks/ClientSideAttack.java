@@ -34,7 +34,7 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.addon.commonlib.CookieUtils;
-import org.zaproxy.zap.extension.jwt.JWTActiveScanner;
+import org.zaproxy.zap.extension.jwt.JWTActiveScanRule;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.utils.VulnerabilityType;
 
@@ -46,7 +46,7 @@ import org.zaproxy.zap.extension.jwt.utils.VulnerabilityType;
  */
 public class ClientSideAttack {
 
-    private JWTActiveScanner jwtActiveScanner;
+    private JWTActiveScanRule jwtActiveScanRule;
     private String param;
     private HttpMessage msg;
 
@@ -58,7 +58,7 @@ public class ClientSideAttack {
             int confidence,
             String param,
             HttpMessage msg) {
-        this.jwtActiveScanner.raiseAlert(
+        this.jwtActiveScanRule.raiseAlert(
                 risk,
                 confidence,
                 JWTI18n.getMessage(MESSAGE_PREFIX + vulnerabilityType.getMessageKey() + ".name"),
@@ -72,12 +72,12 @@ public class ClientSideAttack {
     }
 
     /**
-     * @param jwtActiveScanner
+     * @param jwtActiveScanRule
      * @param param parameter having JWT token
      * @param msg original Http Message
      */
-    public ClientSideAttack(JWTActiveScanner jwtActiveScanner, String param, HttpMessage msg) {
-        this.jwtActiveScanner = jwtActiveScanner;
+    public ClientSideAttack(JWTActiveScanRule jwtActiveScanRule, String param, HttpMessage msg) {
+        this.jwtActiveScanRule = jwtActiveScanRule;
         this.param = param;
         this.msg = msg;
     }

@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.jwt.attacks;
 import java.util.Arrays;
 import java.util.List;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.jwt.JWTActiveScanner;
+import org.zaproxy.zap.extension.jwt.JWTActiveScanRule;
 import org.zaproxy.zap.extension.jwt.JWTHolder;
 
 /**
@@ -32,7 +32,7 @@ import org.zaproxy.zap.extension.jwt.JWTHolder;
  * @since TODO add version
  */
 public class ServerSideAttack {
-    private JWTActiveScanner jwtActiveScanner;
+    private JWTActiveScanRule jwtActiveScanRule;
     private String param;
     private String paramValue;
     private HttpMessage msg;
@@ -46,26 +46,26 @@ public class ServerSideAttack {
 
     /**
      * @param jwtHolder Parsed JWT Token
-     * @param jwtActiveScanner instance of {@link JWTActiveScanner}
+     * @param jwtActiveScanRule instance of {@link JWTActiveScanRule}
      * @param msg original Http Message
      * @param param parameter having JWT token
      * @param paramValue original parameter value
      */
     public ServerSideAttack(
             JWTHolder jwtHolder,
-            JWTActiveScanner jwtActiveScanner,
+            JWTActiveScanRule jwtActiveScanRule,
             String param,
             HttpMessage msg,
             String paramValue) {
         this.jwtHolder = jwtHolder;
-        this.jwtActiveScanner = jwtActiveScanner;
+        this.jwtActiveScanRule = jwtActiveScanRule;
         this.param = param;
         this.msg = msg;
         this.paramValue = paramValue;
     }
 
-    public JWTActiveScanner getJwtActiveScanner() {
-        return jwtActiveScanner;
+    public JWTActiveScanRule getJwtActiveScanRule() {
+        return jwtActiveScanRule;
     }
 
     public String getParam() {
@@ -86,7 +86,7 @@ public class ServerSideAttack {
 
     public boolean execute() {
         for (JWTAttack jwtAttack : JWTATTACKS) {
-            if (jwtActiveScanner.isStop()) {
+            if (jwtActiveScanRule.isStop()) {
                 return false;
             } else {
                 if (jwtAttack.executeAttack(this)) {

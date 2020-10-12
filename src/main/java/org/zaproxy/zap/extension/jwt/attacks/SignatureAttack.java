@@ -89,7 +89,7 @@ public class SignatureAttack implements JWTAttack {
     private boolean executeNullByteAttack() throws JWTException {
         // Appends signature with NullByte plus ZAP eyeCather.
         JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
-        if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+        if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
             return false;
         }
 
@@ -108,7 +108,7 @@ public class SignatureAttack implements JWTAttack {
             return true;
         }
 
-        if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+        if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
             return false;
         }
 
@@ -164,7 +164,7 @@ public class SignatureAttack implements JWTAttack {
         try {
             if (algoType.startsWith(JWT_RSA_ALGORITHM_IDENTIFIER)
                     || algoType.startsWith(JWT_RSA_PSS_ALGORITHM_IDENTIFIER)) {
-                if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+                if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                     return false;
                 }
                 // Generating JWK
@@ -183,7 +183,7 @@ public class SignatureAttack implements JWTAttack {
                     if (curve == null) {
                         continue;
                     }
-                    if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+                    if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                         return false;
                     }
                     // Generating JWK
@@ -249,7 +249,7 @@ public class SignatureAttack implements JWTAttack {
                     try (FileInputStream fileInputStream = new FileInputStream(trustStorePath)) {
                         keyStore.load(fileInputStream, password);
                         while (keyStore.aliases().hasMoreElements()) {
-                            if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+                            if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                                 return false;
                             }
                             String alias = keyStore.aliases().nextElement();
