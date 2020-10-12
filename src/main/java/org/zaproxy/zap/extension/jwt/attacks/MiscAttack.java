@@ -61,7 +61,7 @@ public class MiscAttack implements JWTAttack {
     private boolean executeEmptyPayloads() {
         List<String> jwtEmptyTokens = Arrays.asList("...", ".....");
         for (String emptyToken : jwtEmptyTokens) {
-            if (!this.serverSideAttack.getJwtActiveScanner().isStop()
+            if (!this.serverSideAttack.getJwtActiveScanRule().isStop()
                     && executeAttackAndRaiseAlert(emptyToken)) {
                 return true;
             }

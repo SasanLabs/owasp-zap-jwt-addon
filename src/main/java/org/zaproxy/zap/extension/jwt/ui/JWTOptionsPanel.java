@@ -47,7 +47,7 @@ import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.utils.JWTUIUtils;
 
 /**
- * JWT options panel for specifying settings which are used by {@code JWTActiveScanner} and {@code
+ * JWT options panel for specifying settings which are used by {@code JWTActiveScanRule} and {@code
  * JWTFuzzer} for finding vulnerabilities in applications.
  *
  * @author KSASAN preetkaran20@gmail.com

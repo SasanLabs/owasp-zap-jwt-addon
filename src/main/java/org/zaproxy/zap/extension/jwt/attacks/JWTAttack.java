@@ -38,9 +38,9 @@ public interface JWTAttack {
      * @return {@code true} if attacks is successful else {@code false}
      */
     default boolean verifyJWTToken(String newJWTToken, ServerSideAttack serverSideAttack) {
-        serverSideAttack.getJwtActiveScanner().decreaseRequestCount();
+        serverSideAttack.getJwtActiveScanRule().decreaseRequestCount();
         return serverSideAttack
-                .getJwtActiveScanner()
+                .getJwtActiveScanRule()
                 .sendManipulatedMsgAndCheckIfAttackSuccessful(
                         serverSideAttack.getMsg(),
                         serverSideAttack.getParam(),
@@ -66,7 +66,7 @@ public interface JWTAttack {
             String jwtToken,
             ServerSideAttack serverSideAttack) {
         serverSideAttack
-                .getJwtActiveScanner()
+                .getJwtActiveScanRule()
                 .raiseAlert(
                         alertLevel,
                         confidenceLevel,
