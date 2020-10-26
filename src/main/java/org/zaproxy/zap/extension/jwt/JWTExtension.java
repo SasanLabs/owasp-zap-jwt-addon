@@ -32,7 +32,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.fuzz.MessagePanelManager;
 import org.zaproxy.zap.extension.fuzz.httpfuzzer.ExtensionHttpFuzzer;
-import org.zaproxy.zap.extension.fuzz.httpfuzzer.HttpFuzzerHandler;
 import org.zaproxy.zap.extension.fuzz.messagelocations.MessageLocationReplacers;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
@@ -57,7 +56,6 @@ public class JWTExtension extends ExtensionAdaptor {
         DEPENDENCIES = Collections.unmodifiableList(dependencies);
     }
 
-    private HttpFuzzerHandler httpFuzzerHandler;
     private JWTMessageLocationReplacerFactory jwtMessageLocationReplacerFactory;
 
     @Override
@@ -99,7 +97,6 @@ public class JWTExtension extends ExtensionAdaptor {
             extensionHook.getHookView().addOptionPanel(new JWTOptionsPanel());
         }
         extensionHook.addOptionsParamSet(getJWTConfiguration());
-        extensionFuzz.addFuzzerHandler(httpFuzzerHandler);
         LOGGER.debug("JWT Extension loaded successfully");
     }
 
@@ -130,7 +127,6 @@ public class JWTExtension extends ExtensionAdaptor {
         }
         MessageLocationReplacers.getInstance()
                 .removeReplacer(HttpMessage.class, jwtMessageLocationReplacerFactory);
-        extensionFuzz.removeFuzzerHandler(httpFuzzerHandler);
     }
 
     private JWTConfiguration getJWTConfiguration() {
