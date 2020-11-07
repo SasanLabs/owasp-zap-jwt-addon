@@ -99,9 +99,9 @@ public class SignatureAttack implements JWTAttack {
      */
     private boolean executePubliclyWellKnownHMacSecretAttack() {
         // will only run for high or insane strength
-        if (serverSideAttack.getJwtActiveScanner().getAttackStrength().equals(AttackStrength.LOW)
+        if (serverSideAttack.getJwtActiveScanRule().getAttackStrength().equals(AttackStrength.LOW)
                 || serverSideAttack
-                        .getJwtActiveScanner()
+                        .getJwtActiveScanRule()
                         .getAttackStrength()
                         .equals(AttackStrength.MEDIUM)) {
             return false;
@@ -111,7 +111,7 @@ public class SignatureAttack implements JWTAttack {
         if (JWTConstants.JWT_HMAC_ALGO_TO_JAVA_ALGORITHM_MAPPING.containsKey(
                 serverSideAttack.getJwtHolder().getAlgorithm())) {
             for (String secret : secrets) {
-                if (serverSideAttack.getJwtActiveScanner().isStop()) {
+                if (serverSideAttack.getJwtActiveScanRule().isStop()) {
                     return false;
                 }
                 JWTHolder jwtHolder = serverSideAttack.getJwtHolder();
