@@ -46,10 +46,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -307,8 +307,8 @@ public class JWTUtils {
      * @param fileName
      * @return content from file as list of strings
      */
-    public static List<String> readFileContentsFromResources(String fileName) {
-        List<String> values = new ArrayList<>();
+    public static Set<String> readFileContentsFromResources(String fileName) {
+        Set<String> values = new HashSet<>();
         BufferedReader bufferedReader = null;
         try {
             bufferedReader =

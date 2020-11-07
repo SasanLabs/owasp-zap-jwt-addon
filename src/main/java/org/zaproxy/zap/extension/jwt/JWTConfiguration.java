@@ -78,7 +78,7 @@ public class JWTConfiguration extends VersionedAbstractParam {
         FILE_NAMES_CONTAINING_PUBLICLY_KNOWN_HMAC_SECRETS.stream()
                 .forEach(
                         (fileName) -> {
-                            List<String> values = JWTUtils.readFileContentsFromResources(fileName);
+                            Set<String> values = JWTUtils.readFileContentsFromResources(fileName);
                             if (values != null && values.size() != 0) {
                                 publiclyKnownHMacSecrets.addAll(values);
                             }
