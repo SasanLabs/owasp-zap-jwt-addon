@@ -42,8 +42,7 @@ public class ServerSideAttack {
                     new HeaderAttack(),
                     new PayloadAttack(),
                     new SignatureAttack(),
-                    new MiscAttack(),
-                    new CommonPasswordAttack());
+                    new MiscAttack());
 
     /**
      * @param jwtHolder Parsed JWT Token

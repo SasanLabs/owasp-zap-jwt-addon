@@ -35,7 +35,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
@@ -56,6 +55,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
@@ -69,6 +69,8 @@ import org.zaproxy.zap.extension.jwt.exception.JWTException;
  * @since TODO add version
  */
 public class JWTUtils {
+
+    private static final Logger LOGGER = Logger.getLogger(JWTUtils.class);
 
     /**
      * Converts string to bytes. This method assumes that token is in UTF-8 charset which is as per
@@ -299,26 +301,35 @@ public class JWTUtils {
     }
 
     /**
-     * Generic utility to fetch content from the URL and returning the provided content as list of
+     * Generic utility to read contents from the file and returning the provided content as list of
      * Strings.
      *
-     * @param urlSpec
-     * @return
+     * @param fileName
+     * @return content from file as list of strings
      */
-    public static List<String> readFromUrl(String urlSpec) {
+    public static List<String> readFileContentsFromResources(String fileName) {
         List<String> values = new ArrayList<>();
+        BufferedReader bufferedReader = null;
         try {
-            URL url = new URL(urlSpec);
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            bufferedReader =
+                    new BufferedReader(
+                            new InputStreamReader(JWTUtils.class.getResourceAsStream(fileName)));
             String inputLine;
-            while ((inputLine = in.readLine()) != null) {
+            while ((inputLine = bufferedReader.readLine()) != null) {
                 if (StringUtils.isNotBlank(inputLine)) {
                     values.add(inputLine);
                 }
             }
-            in.close();
         } catch (Exception ex) {
-
+            LOGGER.info("Unable to read publicly known secrets from: " + fileName, ex);
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (Exception ex) {
+                    LOGGER.debug("Unable to close bufferedReader", ex);
+                }
+            }
         }
         return values;
     }
