@@ -46,17 +46,17 @@ import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
  */
-public class JWTActiveScanner extends AbstractAppParamPlugin {
+public class JWTActiveScanRule extends AbstractAppParamPlugin {
 
     private static final int PLUGIN_ID = 40036;
     private static final String NAME = JWTI18n.getMessage("jwt.scanner.name");
     private static final String DESCRIPTION = JWTI18n.getMessage("jwt.scanner.description");
     private static final String SOLUTION = JWTI18n.getMessage("jwt.scanner.soln");
     private static final String REFERENCE = JWTI18n.getMessage("jwt.scanner.refs");
-    private static final Logger LOGGER = Logger.getLogger(JWTActiveScanner.class);
+    private static final Logger LOGGER = Logger.getLogger(JWTActiveScanRule.class);
     private int maxRequestCount;
 
-    public JWTActiveScanner() {}
+    public JWTActiveScanRule() {}
 
     @Override
     public void init() {

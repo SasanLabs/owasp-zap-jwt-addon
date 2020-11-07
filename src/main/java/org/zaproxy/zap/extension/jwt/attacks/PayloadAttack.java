@@ -66,7 +66,7 @@ public class PayloadAttack implements JWTAttack {
         String nullBytePayload = NULL_BYTE_CHARACTER + Constant.getEyeCatcher();
         JWTHolder clonedJWTToken = new JWTHolder(this.serverSideAttack.getJwtHolder());
         try {
-            if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+            if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                 return false;
             }
             // Adding null byte to payload encoded with base64 encoding
@@ -86,7 +86,7 @@ public class PayloadAttack implements JWTAttack {
             // encoding.
             JSONObject payloadJsonObject = new JSONObject(clonedJWTToken.getPayload());
             for (String key : payloadJsonObject.keySet()) {
-                if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+                if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                     return false;
                 }
                 Object originalKeyValue = payloadJsonObject.get(key);

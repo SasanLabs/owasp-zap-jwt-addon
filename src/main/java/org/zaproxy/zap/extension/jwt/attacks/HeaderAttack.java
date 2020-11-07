@@ -67,7 +67,7 @@ public class HeaderAttack implements JWTAttack {
         JWTHolder clonedJWTHolder = new JWTHolder(jwtHolder);
         for (String noneVariant : NONE_ALGORITHM_VARIANTS) {
             for (String headerVariant : this.manipulatingHeaders(noneVariant)) {
-                if (this.serverSideAttack.getJwtActiveScanner().isStop()) {
+                if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                     return false;
                 }
                 clonedJWTHolder.setHeader(headerVariant);
