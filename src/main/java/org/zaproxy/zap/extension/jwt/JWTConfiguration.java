@@ -19,8 +19,13 @@
  */
 package org.zaproxy.zap.extension.jwt;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.common.VersionedAbstractParam;
+import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 
 /**
  * This class holds configuration related to JWT scanner.
@@ -53,7 +58,32 @@ public class JWTConfiguration extends VersionedAbstractParam {
     private boolean enableClientConfigurationScan;
     private static volatile JWTConfiguration jwtConfiguration;
 
-    private JWTConfiguration() {}
+    /**
+     * Files containing publicly well known JWT HMac Secrets.
+     *
+     * <p>There are publicly available well known JWT HMac Secrets. Special thanks to <a href=
+     * "https://lab.wallarm.com/340-weak-jwt-secrets-you-should-check-in-your-code/">Wallarm.com</a>
+     * for collating the list of such weak secrets and making them open-source.
+     */
+    private static final List<String> FILE_NAMES_CONTAINING_PUBLICLY_KNOWN_HMAC_SECRETS =
+            Arrays.asList("/weakKeys/wallarm_jwt_hmac_secrets_list");
+
+    private Set<String> publiclyKnownHMacSecrets = new HashSet<>();
+
+    private JWTConfiguration() {
+        init();
+    }
+
+    private void init() {
+        FILE_NAMES_CONTAINING_PUBLICLY_KNOWN_HMAC_SECRETS.stream()
+                .forEach(
+                        (fileName) -> {
+                            Set<String> values = JWTUtils.readFileContentsFromResources(fileName);
+                            if (values != null && values.size() != 0) {
+                                publiclyKnownHMacSecrets.addAll(values);
+                            }
+                        });
+    }
 
     public static JWTConfiguration getInstance() {
         if (jwtConfiguration == null) {
@@ -130,4 +160,14 @@ public class JWTConfiguration extends VersionedAbstractParam {
 
     @Override
     protected void updateConfigsImpl(int fileVersion) {}
+
+    /**
+     * There are publicly available well known JWT HMac Secrets. This API provides all those secrets
+     * and help in finding JWT's signed using these weak secrets.
+     *
+     * @return publicly known HMac Secrets
+     */
+    public Set<String> getPubliclyKnownHMacSecrets() {
+        return publiclyKnownHMacSecrets;
+    }
 }

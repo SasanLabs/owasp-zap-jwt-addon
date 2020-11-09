@@ -53,15 +53,20 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.zaproxy.zap.extension.jwt.JWTConfiguration;
 import org.zaproxy.zap.extension.jwt.JWTHolder;
+import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
+import org.zaproxy.zap.extension.jwt.utils.JWTConstants;
 import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
 import org.zaproxy.zap.extension.jwt.utils.VulnerabilityType;
 
@@ -78,6 +83,71 @@ public class SignatureAttack implements JWTAttack {
     private static final String MESSAGE_PREFIX =
             "jwt.scanner.server.vulnerability.signatureAttack.";
     private ServerSideAttack serverSideAttack;
+
+    /**
+     * There are publicly available well known JWT HMac Secrets and This attack checks if JWT is
+     * signed using weak well known secret.
+     *
+     * <p>Special thanks to <a href=
+     * "https://lab.wallarm.com/340-weak-jwt-secrets-you-should-check-in-your-code/">Wallarm.com</a>
+     * for collating the list of such weak secrets and making them opensource.
+     *
+     * <p>For knowing all the secrets please visit: <a href=
+     * "https://raw.githubusercontent.com/wallarm/jwt-secrets/master/jwt.secrets.list">Weak Publicly
+     * known HMac Secrets</a>
+     *
+     * @return {@code true} if found any publicly well known secret used to sign JWT else {@code
+     *     false}
+     */
+    private boolean executePubliclyWellKnownHMacSecretAttack() {
+        // will only run for high or insane strength
+        if (serverSideAttack.getJwtActiveScanRule().getAttackStrength().equals(AttackStrength.LOW)
+                || serverSideAttack
+                        .getJwtActiveScanRule()
+                        .getAttackStrength()
+                        .equals(AttackStrength.MEDIUM)) {
+            return false;
+        }
+        Set<String> secrets = JWTConfiguration.getInstance().getPubliclyKnownHMacSecrets();
+        // Checks if HMac is the actual algorithm for the JWT
+        if (JWTConstants.JWT_HMAC_ALGO_TO_JAVA_ALGORITHM_MAPPING.containsKey(
+                serverSideAttack.getJwtHolder().getAlgorithm())) {
+            for (String secret : secrets) {
+                if (serverSideAttack.getJwtActiveScanRule().isStop()) {
+                    return false;
+                }
+                JWTHolder jwtHolder = serverSideAttack.getJwtHolder();
+                try {
+                    String tokenSignedWithWeakSecret =
+                            JWTUtils.getBase64EncodedHMACSignedToken(
+                                    JWTUtils.getBytes(
+                                            jwtHolder.getBase64EncodedTokenWithoutSignature()),
+                                    JWTUtils.getBytes(secret),
+                                    jwtHolder.getAlgorithm());
+                    if (tokenSignedWithWeakSecret.equals(jwtHolder.getBase64EncodedToken())) {
+                        this.raiseAlert(
+                                MESSAGE_PREFIX,
+                                VulnerabilityType.PUBLICLY_KNOWN_SECRETS,
+                                Alert.RISK_HIGH,
+                                Alert.CONFIDENCE_HIGH,
+                                MessageFormat.format(
+                                        JWTI18n.getMessage(
+                                                MESSAGE_PREFIX
+                                                        + VulnerabilityType.PUBLICLY_KNOWN_SECRETS
+                                                                .getMessageKey()
+                                                        + ".param"),
+                                        jwtHolder.getBase64EncodedToken(),
+                                        secret),
+                                serverSideAttack);
+                        return true;
+                    }
+                } catch (JWTException e) {
+                    LOGGER.warn("An error occurred while getting signed manipulated tokens", e);
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * Adds Null Byte to the signature to checks if JWT is vulnerable to Null Byte injection. Main
@@ -297,7 +367,8 @@ public class SignatureAttack implements JWTAttack {
         try {
             return this.executeCustomPrivateKeySignedJWTTokenAttack()
                     || this.executeAlgoKeyConfusionAttack()
-                    || this.executeNullByteAttack();
+                    || this.executeNullByteAttack()
+                    || this.executePubliclyWellKnownHMacSecretAttack();
         } catch (JWTException e) {
             LOGGER.error("An error occurred while getting signed manipulated tokens", e);
         }
