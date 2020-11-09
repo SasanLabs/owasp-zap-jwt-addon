@@ -309,11 +309,9 @@ public class JWTUtils {
      */
     public static Set<String> readFileContentsFromResources(String fileName) {
         Set<String> values = new HashSet<>();
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader =
-                    new BufferedReader(
-                            new InputStreamReader(JWTUtils.class.getResourceAsStream(fileName)));
+        try (BufferedReader bufferedReader =
+                new BufferedReader(
+                        new InputStreamReader(JWTUtils.class.getResourceAsStream(fileName)))) {
             String inputLine;
             while ((inputLine = bufferedReader.readLine()) != null) {
                 if (StringUtils.isNotBlank(inputLine)) {
@@ -321,15 +319,7 @@ public class JWTUtils {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.info("Unable to read publicly known secrets from: " + fileName, ex);
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (Exception ex) {
-                    LOGGER.debug("Unable to close bufferedReader", ex);
-                }
-            }
+            LOGGER.warn("Unable to read publicly known secrets from: " + fileName, ex);
         }
         return values;
     }

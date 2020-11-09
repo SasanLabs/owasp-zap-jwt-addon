@@ -53,6 +53,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +64,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.zaproxy.zap.extension.jwt.JWTConfiguration;
 import org.zaproxy.zap.extension.jwt.JWTHolder;
+import org.zaproxy.zap.extension.jwt.JWTI18n;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
 import org.zaproxy.zap.extension.jwt.utils.JWTConstants;
 import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
@@ -128,16 +130,16 @@ public class SignatureAttack implements JWTAttack {
                                 VulnerabilityType.PUBLICLY_KNOWN_SECRETS,
                                 Alert.RISK_HIGH,
                                 Alert.CONFIDENCE_HIGH,
-                                "JWT token: "
-                                        + jwtHolder.getBase64EncodedToken()
-                                        + " is signed by: \""
-                                        + secret
-                                        + "\"",
+                                MessageFormat.format(
+                                        JWTI18n.getMessage(
+                                                "jwt.scanner.server.vulnerability.signatureAttack.publiclyKnownSecrets.param"),
+                                        jwtHolder.getBase64EncodedToken(),
+                                        secret),
                                 serverSideAttack);
                         return true;
                     }
                 } catch (JWTException e) {
-                    LOGGER.error("An error occurred while getting signed manipulated tokens", e);
+                    LOGGER.warn("An error occurred while getting signed manipulated tokens", e);
                 }
             }
         }
