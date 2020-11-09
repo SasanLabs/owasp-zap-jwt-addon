@@ -132,7 +132,10 @@ public class SignatureAttack implements JWTAttack {
                                 Alert.CONFIDENCE_HIGH,
                                 MessageFormat.format(
                                         JWTI18n.getMessage(
-                                                "jwt.scanner.server.vulnerability.signatureAttack.publiclyKnownSecrets.param"),
+                                                MESSAGE_PREFIX
+                                                        + VulnerabilityType.PUBLICLY_KNOWN_SECRETS
+                                                                .getMessageKey()
+                                                        + ".param"),
                                         jwtHolder.getBase64EncodedToken(),
                                         secret),
                                 serverSideAttack);
