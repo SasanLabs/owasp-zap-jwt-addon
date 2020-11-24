@@ -68,7 +68,7 @@ public class JWTActiveScanRule extends AbstractAppParamPlugin {
                 maxRequestCount = 8;
                 break;
             case HIGH:
-                maxRequestCount = 12;
+                maxRequestCount = 18;
                 break;
             case INSANE:
                 maxRequestCount = 28;
@@ -105,9 +105,7 @@ public class JWTActiveScanRule extends AbstractAppParamPlugin {
         }
 
         if (JWTConfiguration.getInstance().isEnableClientConfigurationScan()) {
-            if (performAttackClientSideConfigurations(msg, param)) {
-                return;
-            }
+            performAttackClientSideConfigurations(msg, param);
             this.decreaseRequestCount();
         }
         performAttackServerSideConfigurations(msg, param, jwtHolder, value);
