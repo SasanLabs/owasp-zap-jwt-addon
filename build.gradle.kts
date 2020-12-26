@@ -22,8 +22,7 @@ java {
 
 spotless {
     java {
-        // Don't enforce the license, just the format.
-        clearSteps()
+        licenseHeaderFile("$rootDir/gradle/spotless/license.java")
         googleJavaFormat().aosp()
     }
 }
