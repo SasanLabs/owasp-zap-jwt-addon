@@ -22,7 +22,7 @@ java {
 
 spotless {
     java {
-        licenseHeaderFile("../gradle/spotless/license.java")
+        licenseHeaderFile("../gradle/spotless/License.java")
         googleJavaFormat().aosp()
     }
 }
