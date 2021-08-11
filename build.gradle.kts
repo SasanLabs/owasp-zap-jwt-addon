@@ -29,6 +29,10 @@ spotless {
 
 tasks.withType<JavaCompile>().configureEach { options.encoding = "utf-8" }
 
+tasks.compileJava {
+    dependsOn("spotlessApply")
+}
+
 version = "1.0.1"
 description = "Detect JWT requests and scan them to find related vulnerabilities"
 
