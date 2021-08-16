@@ -32,6 +32,7 @@ For Server-side it mainly covers following vulnerabilities:
 3. [Trusting JWK provided with the Token](https://nvd.nist.gov/vuln/detail/CVE-2018-0114)
 4. Empty JWT
 5. Null Byte Injection attack
+6. [Weak JWT secrets](https://lab.wallarm.com/340-weak-jwt-secrets-you-should-check-in-your-code/)
 
 ### Fuzzer View
 JWT Fuzzer view is different from HTTP Fuzzer view as JWT's need to be parsed, then JWT field values can be fuzzed. The following is the Fuzzer view:
