@@ -1,4 +1,5 @@
-# owasp-zap-jwt-addon [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) ![Java CI with Gradle](https://github.com/SasanLabs/owasp-zap-jwt-addon/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master)
+# owasp-zap-jwt-addon 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) ![Java CI with Gradle](https://github.com/SasanLabs/owasp-zap-jwt-addon/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master) <a href="https://twitter.com/intent/follow?screen_name=sasan_karan"><img src="https://img.shields.io/twitter/follow/sasan_karan?style=flat&logo=twitter"></a>
 
 This Project contains the JWT Scanner and JWT Fuzzer addon used for finding JWT related vulnerabilities.
 
