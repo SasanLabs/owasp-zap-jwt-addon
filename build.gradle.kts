@@ -5,10 +5,10 @@ import org.zaproxy.gradle.addon.misc.CreateGitHubRelease
 import org.zaproxy.gradle.addon.misc.ExtractLatestChangesFromChangelog
 
 plugins {
-    id("com.diffplug.gradle.spotless") version "3.27.2"
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.diffplug.spotless") version "5.17.1"
+    id("com.github.ben-manes.versions") version "0.39.0"
     `java-library`
-    id("org.zaproxy.add-on") version "0.3.0"
+    id("org.zaproxy.add-on") version "0.7.0"
 }
 
 repositories {
@@ -57,7 +57,7 @@ zapAddOn {
 }
 
 dependencies {
-    implementation("org.json:json:20190722")
+    implementation("org.json:json:20210307")
     // https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
     implementation("com.nimbusds:nimbus-jose-jwt:8.3")
 
