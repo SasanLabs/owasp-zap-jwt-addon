@@ -140,10 +140,6 @@ public class JWTMessageLocation extends DefaultTextHttpMessageLocation implement
         if (result != 0) {
             return result;
         }
-
-        if (result != 0) {
-            return result;
-        }
         return super.compareTo(otherLocation);
     }
 

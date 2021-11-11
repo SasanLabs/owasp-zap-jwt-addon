@@ -21,7 +21,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.fuzz.MessagePanelManager;
@@ -68,11 +67,6 @@ public class JWTExtension extends ExtensionAdaptor {
         jwtMessageLocationReplacerFactory = new JWTMessageLocationReplacerFactory();
         MessageLocationReplacers.getInstance()
                 .addReplacer(HttpMessage.class, jwtMessageLocationReplacerFactory);
-    }
-
-    @Override
-    public void initView(ViewDelegate view) {
-        super.initView(view);
     }
 
     @Override

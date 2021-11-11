@@ -50,8 +50,6 @@ public class JWTActiveScanRule extends AbstractAppParamPlugin {
     private static final Logger LOGGER = Logger.getLogger(JWTActiveScanRule.class);
     private int maxRequestCount;
 
-    public JWTActiveScanRule() {}
-
     @Override
     public void init() {
         switch (this.getAttackStrength()) {

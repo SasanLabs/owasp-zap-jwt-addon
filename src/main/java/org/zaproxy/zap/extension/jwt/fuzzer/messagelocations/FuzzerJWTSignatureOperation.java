@@ -47,6 +47,7 @@ public enum FuzzerJWTSignatureOperation {
         this.labelKey = labelKey;
     }
 
+    @Override
     public String toString() {
         return JWTI18n.getResourceBundle().getString(labelKey);
     }

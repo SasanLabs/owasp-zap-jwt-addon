@@ -24,7 +24,11 @@ import org.zaproxy.zap.utils.FontUtils;
  *
  * @author preetkaran20@gmail.com KSASAN
  */
-public class JWTUIUtils {
+public final class JWTUIUtils {
+
+    private JWTUIUtils() {
+        // Utility class.
+    }
 
     /**
      * Returns the Titled Border with the provided titleKey.

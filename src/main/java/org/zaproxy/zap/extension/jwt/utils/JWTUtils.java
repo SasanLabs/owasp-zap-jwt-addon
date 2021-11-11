@@ -62,9 +62,13 @@ import org.zaproxy.zap.extension.jwt.exception.JWTException;
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
  */
-public class JWTUtils {
+public final class JWTUtils {
 
     private static final Logger LOGGER = Logger.getLogger(JWTUtils.class);
+
+    private JWTUtils() {
+        // Utility class
+    }
 
     /**
      * Converts string to bytes. This method assumes that token is in UTF-8 charset which is as per
