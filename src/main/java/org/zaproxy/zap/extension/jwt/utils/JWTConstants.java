@@ -25,12 +25,13 @@ public interface JWTConstants {
 
     char JWT_TOKEN_PERIOD_CHARACTER = '.';
     String JWT_TOKEN_PERIOD_CHARACTER_REGEX = "[" + JWT_TOKEN_PERIOD_CHARACTER + "]";
+    String JWT_COMPONENT_REGEX = "[a-zA-Z0-9_-]*";
     String JWT_TOKEN_FORMAT_REGEX =
-            "[a-zA-Z0-9_-]*"
+            JWT_COMPONENT_REGEX
                     + JWT_TOKEN_PERIOD_CHARACTER_REGEX
-                    + "[a-zA-Z0-9_-]*"
+                    + JWT_COMPONENT_REGEX
                     + JWT_TOKEN_PERIOD_CHARACTER_REGEX
-                    + "[a-zA-Z0-9_-]*";
+                    + JWT_COMPONENT_REGEX;
     // Pattern JWT_TOKEN_REGEX_VALIDATOR_PATTERN = Pattern.compile(JWT_TOKEN_FORMAT_REGEX + "$");
     Pattern JWT_TOKEN_REGEX_PATTERN = Pattern.compile(JWT_TOKEN_FORMAT_REGEX);
     String BASE64_PADDING_CHARACTER_REGEX = "[=]";
@@ -69,7 +70,7 @@ public interface JWTConstants {
             createJWTHmacAlgoToJavaAlgoMapping();
 
     static Map<String, String> createJWTHmacAlgoToJavaAlgoMapping() {
-        Map<String, String> jwtAlgoToJavaAlgoMapping = new HashMap<String, String>();
+        Map<String, String> jwtAlgoToJavaAlgoMapping = new HashMap<>();
         jwtAlgoToJavaAlgoMapping.put("HS256", "HmacSHA256");
         jwtAlgoToJavaAlgoMapping.put("HS384", "HmacSHA384");
         jwtAlgoToJavaAlgoMapping.put("HS512", "HmacSHA512");

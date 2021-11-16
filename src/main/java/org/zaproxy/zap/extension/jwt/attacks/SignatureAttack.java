@@ -150,7 +150,7 @@ public class SignatureAttack implements JWTAttack {
      *
      * @throws JWTException
      */
-    private boolean executeNullByteAttack() throws JWTException {
+    private boolean executeNullByteAttack() {
         // Appends signature with NullByte plus ZAP eyeCather.
         JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
         if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
@@ -348,7 +348,7 @@ public class SignatureAttack implements JWTAttack {
                 | NoSuchAlgorithmException
                 | CertificateException
                 | IOException e) {
-            new JWTException(
+            throw new JWTException(
                     "An exception occurred while getting manipulated token for confusion scenario",
                     e);
         }

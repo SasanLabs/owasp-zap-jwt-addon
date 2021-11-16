@@ -22,8 +22,12 @@ import org.parosproxy.paros.Constant;
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
  */
-public class JWTI18n {
+public final class JWTI18n {
     private static ResourceBundle message;
+
+    private JWTI18n() {
+        // Nothing to do.
+    }
 
     public static void init() {
         message =

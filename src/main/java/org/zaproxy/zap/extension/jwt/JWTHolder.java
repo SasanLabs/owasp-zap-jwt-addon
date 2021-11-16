@@ -78,8 +78,7 @@ public class JWTHolder {
     /** @return algorithm value from Header */
     public String getAlgorithm() {
         JSONObject headerJSONObject = new JSONObject(this.getHeader());
-        String algoType = headerJSONObject.getString(JWT_ALGORITHM_KEY_HEADER);
-        return algoType;
+        return headerJSONObject.getString(JWT_ALGORITHM_KEY_HEADER);
     }
 
     /**

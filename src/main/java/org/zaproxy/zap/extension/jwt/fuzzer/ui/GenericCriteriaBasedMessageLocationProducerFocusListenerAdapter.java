@@ -39,7 +39,7 @@ public class GenericCriteriaBasedMessageLocationProducerFocusListenerAdapter
 
     @Override
     public void focusGained(FocusEvent e) {
-        if (!this.criteriaSupplier.get()) {
+        if (Boolean.FALSE.equals(this.criteriaSupplier.get())) {
             return;
         }
         super.focusGained(e);

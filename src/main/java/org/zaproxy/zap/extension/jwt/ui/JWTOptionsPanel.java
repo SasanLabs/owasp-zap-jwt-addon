@@ -17,8 +17,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
@@ -102,13 +100,7 @@ public class JWTOptionsPanel extends AbstractParamPanel {
     private JButton getResetButton() {
         JButton resetButton = new JButton();
         resetButton.setText(JWTI18n.getMessage("jwt.settings.button.reset"));
-        resetButton.addActionListener(
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        resetOptionsPanel();
-                    }
-                });
+        resetButton.addActionListener(e -> resetOptionsPanel());
         return resetButton;
     }
 
@@ -117,39 +109,34 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         trustStoreFileChooserButton =
                 new JButton(JWTI18n.getMessage("jwt.settings.filechooser.button"));
         trustStoreFileChooserButton.addActionListener(
-                new ActionListener() {
+                e -> {
+                    trustStoreFileChooser = new JFileChooser();
+                    trustStoreFileChooser.setFileFilter(
+                            new FileFilter() {
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        trustStoreFileChooser = new JFileChooser();
-                        trustStoreFileChooser.setFileFilter(
-                                new FileFilter() {
+                                @Override
+                                public String getDescription() {
+                                    return JWTI18n.getMessage(
+                                            "jwt.settings.rsa.trustStoreFileDescription");
+                                }
 
-                                    @Override
-                                    public String getDescription() {
-                                        return JWTI18n.getMessage(
-                                                "jwt.settings.rsa.trustStoreFileDescription");
-                                    }
-
-                                    @Override
-                                    public boolean accept(File f) {
-                                        return f.getName().endsWith(".p12") || f.isDirectory();
-                                    }
-                                });
-                        trustStoreFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                        String path = trustStoreFileChooserTextField.getText();
-                        if (!path.isEmpty()) {
-                            File file = new File(path);
-                            if (file.exists()) {
-                                trustStoreFileChooser.setSelectedFile(file);
-                            }
+                                @Override
+                                public boolean accept(File f) {
+                                    return f.getName().endsWith(".p12") || f.isDirectory();
+                                }
+                            });
+                    trustStoreFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    String path = trustStoreFileChooserTextField.getText();
+                    if (!path.isEmpty()) {
+                        File file = new File(path);
+                        if (file.exists()) {
+                            trustStoreFileChooser.setSelectedFile(file);
                         }
-                        if (trustStoreFileChooser.showOpenDialog(null)
-                                == JFileChooser.APPROVE_OPTION) {
-                            final File selectedFile = trustStoreFileChooser.getSelectedFile();
-                            trustStorePath = selectedFile.getAbsolutePath();
-                            trustStoreFileChooserTextField.setText(selectedFile.getAbsolutePath());
-                        }
+                    }
+                    if (trustStoreFileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                        final File selectedFile = trustStoreFileChooser.getSelectedFile();
+                        trustStorePath = selectedFile.getAbsolutePath();
+                        trustStoreFileChooserTextField.setText(selectedFile.getAbsolutePath());
                     }
                 });
     }
@@ -267,40 +254,36 @@ public class JWTOptionsPanel extends AbstractParamPanel {
         jwtRsaPrivateKeyFileChooserTextField.setEditable(false);
         jwtRsaPrivateKeyFileChooserTextField.setColumns(15);
         jwtRsaPrivateKeyFileChooserButton.addActionListener(
-                new ActionListener() {
+                e -> {
+                    JFileChooser jwtRsaPrivateKeyFileChooser = new JFileChooser();
+                    jwtRsaPrivateKeyFileChooser.setFileFilter(
+                            new FileFilter() {
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFileChooser jwtRsaPrivateKeyFileChooser = new JFileChooser();
-                        jwtRsaPrivateKeyFileChooser.setFileFilter(
-                                new FileFilter() {
+                                @Override
+                                public String getDescription() {
+                                    return JWTI18n.getMessage(
+                                            "jwt.settings.rsa.keystore.pemFileDescription");
+                                }
 
-                                    @Override
-                                    public String getDescription() {
-                                        return JWTI18n.getMessage(
-                                                "jwt.settings.rsa.keystore.pemFileDescription");
-                                    }
-
-                                    @Override
-                                    public boolean accept(File f) {
-                                        return f.getName().endsWith(".pem") || f.isDirectory();
-                                    }
-                                });
-                        jwtRsaPrivateKeyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                        String path = jwtRsaPrivateKeyFileChooserTextField.getText();
-                        if (!path.isEmpty()) {
-                            File file = new File(path);
-                            if (file.exists()) {
-                                jwtRsaPrivateKeyFileChooser.setSelectedFile(file);
-                            }
+                                @Override
+                                public boolean accept(File f) {
+                                    return f.getName().endsWith(".pem") || f.isDirectory();
+                                }
+                            });
+                    jwtRsaPrivateKeyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    String path = jwtRsaPrivateKeyFileChooserTextField.getText();
+                    if (!path.isEmpty()) {
+                        File file = new File(path);
+                        if (file.exists()) {
+                            jwtRsaPrivateKeyFileChooser.setSelectedFile(file);
                         }
-                        if (jwtRsaPrivateKeyFileChooser.showOpenDialog(null)
-                                == JFileChooser.APPROVE_OPTION) {
-                            final File selectedFile = jwtRsaPrivateKeyFileChooser.getSelectedFile();
-                            jwtRsaPrivateKeyFileChooserPath = selectedFile.getAbsolutePath();
-                            jwtRsaPrivateKeyFileChooserTextField.setText(
-                                    selectedFile.getAbsolutePath());
-                        }
+                    }
+                    if (jwtRsaPrivateKeyFileChooser.showOpenDialog(null)
+                            == JFileChooser.APPROVE_OPTION) {
+                        final File selectedFile = jwtRsaPrivateKeyFileChooser.getSelectedFile();
+                        jwtRsaPrivateKeyFileChooserPath = selectedFile.getAbsolutePath();
+                        jwtRsaPrivateKeyFileChooserTextField.setText(
+                                selectedFile.getAbsolutePath());
                     }
                 });
         gridBagConstraints.gridx = 0;

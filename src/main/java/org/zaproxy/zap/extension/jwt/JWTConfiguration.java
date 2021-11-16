@@ -29,7 +29,7 @@ import org.zaproxy.zap.extension.jwt.utils.JWTUtils;
  */
 public class JWTConfiguration extends VersionedAbstractParam {
 
-    protected static final Logger LOGGER = Logger.getLogger(JWTExtension.class);
+    protected static final Logger LOGGER = Logger.getLogger(JWTConfiguration.class);
 
     /** The base configuration key for all JWT configurations. */
     private static final String PARAM_BASE_KEY = "jwt";
@@ -71,9 +71,9 @@ public class JWTConfiguration extends VersionedAbstractParam {
     private void init() {
         FILE_NAMES_CONTAINING_PUBLICLY_KNOWN_HMAC_SECRETS.stream()
                 .forEach(
-                        (fileName) -> {
+                        fileName -> {
                             Set<String> values = JWTUtils.readFileContentsFromResources(fileName);
-                            if (values != null && values.size() != 0) {
+                            if (values != null && !values.isEmpty()) {
                                 publiclyKnownHMacSecrets.addAll(values);
                             }
                         });

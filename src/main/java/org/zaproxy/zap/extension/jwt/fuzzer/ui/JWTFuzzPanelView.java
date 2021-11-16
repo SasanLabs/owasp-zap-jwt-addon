@@ -16,7 +16,6 @@ package org.zaproxy.zap.extension.jwt.fuzzer.ui;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -87,8 +87,7 @@ public class JWTFuzzPanelView
 
     private GridBagConstraints gridBagConstraints;
     private Vector<String> jwtComboBoxModel =
-            new Vector<String>(
-                    Arrays.asList(JWTI18n.getMessage("jwt.fuzzer.panel.jwtcombobox.select")));
+            new Vector<>(Arrays.asList(JWTI18n.getMessage("jwt.fuzzer.panel.jwtcombobox.select")));
     private HttpMessage message;
     private Map<String, String> comboBoxKeyAndJwtMap = new HashMap<>();
     private Map<JWTMessageLocation, List<Component>> jwtMessageLocationAndRelatedComponentsMap =
@@ -118,32 +117,30 @@ public class JWTFuzzPanelView
         commonPropertiesPanel.setLayout(gridBagLayout);
         commonPropertiesPanel.setBorder(
                 JWTUIUtils.getTitledBorder("jwt.fuzzer.panel.commonConfiguration"));
-        GridBagConstraints gridBagConstraints = JWTUIUtils.getGridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        GridBagConstraints gbc = JWTUIUtils.getGridBagConstraints();
+        gbc.gridx = 0;
         commonPropertiesPanel.add(
-                new JLabel(JWTI18n.getMessage("jwt.settings.title"), JLabel.CENTER),
-                gridBagConstraints);
-        gridBagConstraints.gridx++;
+                new JLabel(JWTI18n.getMessage("jwt.settings.title"), SwingConstants.CENTER), gbc);
+        gbc.gridx++;
         commonPropertiesPanel.add(
                 new JLabel(
                         JWTI18n.getMessage("jwt.fuzzer.panel.signature.operationtype"),
-                        JLabel.CENTER),
-                gridBagConstraints);
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy++;
-        jwtComboBox = new JComboBox<String>(this.jwtComboBoxModel);
-        commonPropertiesPanel.add(jwtComboBox, gridBagConstraints);
-        gridBagConstraints.gridx++;
-        jwtSignatureOperationCheckBox =
-                new JComboBox<FuzzerJWTSignatureOperation>(FuzzerJWTSignatureOperation.values());
-        commonPropertiesPanel.add(jwtSignatureOperationCheckBox, gridBagConstraints);
+                        SwingConstants.CENTER),
+                gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        jwtComboBox = new JComboBox<>(this.jwtComboBoxModel);
+        commonPropertiesPanel.add(jwtComboBox, gbc);
+        gbc.gridx++;
+        jwtSignatureOperationCheckBox = new JComboBox<>(FuzzerJWTSignatureOperation.values());
+        commonPropertiesPanel.add(jwtSignatureOperationCheckBox, gbc);
         this.addActionListenerToRequestFocus(this.jwtComboBox);
         this.addActionListenerToRequestFocus(this.jwtSignatureOperationCheckBox);
         return commonPropertiesPanel;
     }
 
     private <T> void addActionListenerToRequestFocus(JComboBox<T> comboBox) {
-        comboBox.addActionListener((e) -> contentPanel.requestFocusInWindow());
+        comboBox.addActionListener(e -> contentPanel.requestFocusInWindow());
     }
 
     private JPanel getFuzzerPanel() {
@@ -154,11 +151,13 @@ public class JWTFuzzPanelView
         fuzzerPanel.setLayout(gridBagLayout);
 
         JLabel componentLabel =
-                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.component"), JLabel.CENTER);
+                new JLabel(
+                        JWTI18n.getMessage("jwt.fuzzer.panel.token.component"),
+                        SwingConstants.CENTER);
         fuzzerPanel.add(componentLabel, gridBagConstraints);
         gridBagConstraints.gridx++;
         JLabel keyLabel =
-                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.key"), JLabel.CENTER);
+                new JLabel(JWTI18n.getMessage("jwt.fuzzer.panel.token.key"), SwingConstants.CENTER);
         fuzzerPanel.add(keyLabel, gridBagConstraints);
 
         gridBagConstraints.gridy++;
@@ -168,8 +167,8 @@ public class JWTFuzzPanelView
 
     private void updateUIWithJWTSelection() {
         if (jwtComboBox.getSelectedIndex() > 0) {
-            jwtComponentType = new JComboBox<String>();
-            jwtComponentJsonKeysComboBox = new JComboBox<String>();
+            jwtComponentType = new JComboBox<>();
+            jwtComponentJsonKeysComboBox = new JComboBox<>();
             this.addActionListenerToRequestFocus(jwtComponentType);
             this.addActionListenerToRequestFocus(jwtComponentJsonKeysComboBox);
             String selectedItem =
@@ -220,7 +219,7 @@ public class JWTFuzzPanelView
     }
 
     private ActionListener getJWTComponentTypeActionListener(JWTHolder jwtHolder) {
-        return (e) -> {
+        return e -> {
             String jwtComponentValue = jwtHolder.getHeader();
             if (jwtComponentType.getSelectedIndex() == 1) {
                 jwtComponentValue = jwtHolder.getPayload();
@@ -237,13 +236,7 @@ public class JWTFuzzPanelView
     }
 
     private void addActionListenerOnJWTComboBox() {
-        jwtComboBox.addActionListener(
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        updateUIWithJWTSelection();
-                    }
-                });
+        jwtComboBox.addActionListener(e -> updateUIWithJWTSelection());
     }
 
     /** Adds the New JWT Component Type and Key Field ComboBox. */
@@ -383,17 +376,14 @@ public class JWTFuzzPanelView
             location = Location.REQUEST_BODY;
             startIndex = this.message.getRequestBody().toString().indexOf(jwt);
         }
-        JWTMessageLocation jwtMessageLocation =
-                new JWTMessageLocation(
-                        location,
-                        startIndex,
-                        startIndex + jwt.length(),
-                        jwt,
-                        jwtComponentJsonKey,
-                        isHeaderComponent,
-                        (FuzzerJWTSignatureOperation)
-                                (jwtSignatureOperationCheckBox.getSelectedItem()));
-        return jwtMessageLocation;
+        return new JWTMessageLocation(
+                location,
+                startIndex,
+                startIndex + jwt.length(),
+                jwt,
+                jwtComponentJsonKey,
+                isHeaderComponent,
+                (FuzzerJWTSignatureOperation) (jwtSignatureOperationCheckBox.getSelectedItem()));
     }
 
     private Supplier<Boolean> getFocusListenerCriteria() {
@@ -478,7 +468,7 @@ public class JWTFuzzPanelView
                 Arrays.asList(this.jwtComponentType, this.jwtComponentJsonKeysComboBox);
         this.jwtMessageLocationAndRelatedComponentsMap.put(
                 (JWTMessageLocation) location, components);
-        components.forEach((component) -> component.setEnabled(false));
+        components.forEach(component -> component.setEnabled(false));
         addNewFuzzerFieldsRow();
         if (jwtMessageLocationAndRelatedComponentsMap.size() > 0) {
             this.jwtComboBox.setEnabled(false);
@@ -493,9 +483,9 @@ public class JWTFuzzPanelView
         if (jwtMessageLocationAndRelatedComponentsMap.containsKey(location)) {
             this.jwtMessageLocationAndRelatedComponentsMap
                     .get(location)
-                    .forEach((component) -> fuzzerPanel.remove(component));
+                    .forEach(component -> fuzzerPanel.remove(component));
         }
-        this.jwtMessageLocationAndRelatedComponentsMap.remove((JWTMessageLocation) location);
+        this.jwtMessageLocationAndRelatedComponentsMap.remove(location);
         if (jwtMessageLocationAndRelatedComponentsMap.size() == 0) {
             this.jwtComboBox.setEnabled(true);
             this.jwtSignatureOperationCheckBox.setEnabled(true);
