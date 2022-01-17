@@ -52,7 +52,7 @@ public final class JWTUIUtils {
      */
     public static GridBagConstraints getGridBagConstraints() {
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.fill = GridBagConstraints.NONE;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridx = 0;

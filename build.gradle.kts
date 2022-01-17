@@ -38,7 +38,7 @@ description = "Detect JWT requests and scan them to find related vulnerabilities
 
 zapAddOn {
     addOnName.set("JWT Support")
-    zapVersion.set("2.9.0")
+    zapVersion.set("2.11.1")
     addOnStatus.set(AddOnStatus.ALPHA)
 
     manifest {
