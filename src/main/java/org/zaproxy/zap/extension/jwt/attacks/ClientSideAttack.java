@@ -26,7 +26,9 @@ import org.apache.commons.collections.iterators.IteratorChain;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.addon.commonlib.CookieUtils;
 import org.zaproxy.zap.extension.jwt.JWTActiveScanRule;
 import org.zaproxy.zap.extension.jwt.JWTI18n;
@@ -167,6 +169,20 @@ public class ClientSideAttack {
                 if (htmlParameter.getName().equals(param)) {
                     this.raiseAlert(
                             VulnerabilityType.FORM_PARAM,
+                            Alert.RISK_INFO,
+                            Alert.CONFIDENCE_LOW,
+                            param,
+                            msg);
+                    return true;
+                }
+            }
+
+            // Raise an info alert if JWT is present in header.
+            HttpRequestHeader requestHeaders = msg.getRequestHeader();
+            for (HttpHeaderField headerField : requestHeaders.getHeaders()) {
+                if (headerField.getName().equals(param)) {
+                    this.raiseAlert(
+                            VulnerabilityType.HEADERS,
                             Alert.RISK_INFO,
                             Alert.CONFIDENCE_LOW,
                             param,

@@ -14,10 +14,16 @@
 package org.zaproxy.zap.extension.jwt;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
 import org.parosproxy.paros.core.scanner.Category;
+import org.parosproxy.paros.core.scanner.NameValuePair;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.jwt.attacks.ClientSideAttack;
 import org.zaproxy.zap.extension.jwt.attacks.ServerSideAttack;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
@@ -48,6 +54,8 @@ public class JWTActiveScanRule extends AbstractAppParamPlugin {
     private static final String SOLUTION = JWTI18n.getMessage("jwt.scanner.soln");
     private static final String REFERENCE = JWTI18n.getMessage("jwt.scanner.refs");
     private static final Logger LOGGER = Logger.getLogger(JWTActiveScanRule.class);
+    private static final String AUTHORIZATION_HEADER_KEY =
+            HttpRequestHeader.AUTHORIZATION.toLowerCase(Locale.ROOT);
     private int maxRequestCount;
 
     @Override
@@ -68,6 +76,29 @@ public class JWTActiveScanRule extends AbstractAppParamPlugin {
             default:
                 maxRequestCount = 8;
                 break;
+        }
+    }
+
+    protected void scan(List<NameValuePair> nameValuePairs) {
+        if (nameValuePairs.isEmpty()
+                || nameValuePairs.get(0).getType() != NameValuePair.TYPE_HEADER) {
+            super.scan(nameValuePairs);
+        } else {
+            nameValuePairs = new ArrayList<>(nameValuePairs);
+            List<HttpHeaderField> headerFields = getBaseMsg().getRequestHeader().getHeaders();
+            for (HttpHeaderField headerField : headerFields) {
+                if (AUTHORIZATION_HEADER_KEY.equals(
+                        headerField.getName().toLowerCase(Locale.ROOT))) {
+                    nameValuePairs.add(
+                            new NameValuePair(
+                                    NameValuePair.TYPE_HEADER,
+                                    headerField.getName(),
+                                    headerField.getValue(),
+                                    nameValuePairs.size()));
+                    break;
+                }
+            }
+            super.scan(nameValuePairs);
         }
     }
 
