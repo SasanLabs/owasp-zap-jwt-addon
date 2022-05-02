@@ -47,6 +47,8 @@ public class JWTExtension extends ExtensionAdaptor {
         List<Class<? extends Extension>> dependencies = new ArrayList<>(1);
         dependencies.add(ExtensionHttpFuzzer.class);
         DEPENDENCIES = Collections.unmodifiableList(dependencies);
+
+        JWTI18n.init();
     }
 
     private JWTMessageLocationReplacerFactory jwtMessageLocationReplacerFactory;
@@ -63,7 +65,6 @@ public class JWTExtension extends ExtensionAdaptor {
 
     @Override
     public void init() {
-        JWTI18n.init();
         jwtMessageLocationReplacerFactory = new JWTMessageLocationReplacerFactory();
         MessageLocationReplacers.getInstance()
                 .addReplacer(HttpMessage.class, jwtMessageLocationReplacerFactory);
