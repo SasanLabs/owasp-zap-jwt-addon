@@ -3,6 +3,9 @@ All notable changes to this add-on will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### Unreleased
+- Ensure i18n resources are always initialized.
+
 ### [1.0.2] - 2022-01-17
  - Sonar Fixes.
  - Updated Client side attack to introduce warning if HTTP Header contains JWT.
