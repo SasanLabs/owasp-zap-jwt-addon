@@ -143,6 +143,35 @@ public class SignatureAttack implements JWTAttack {
         return false;
     }
 
+
+
+    private boolean executeIncorrectSignatureAttack() {
+        JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
+        if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
+            return false;
+        }
+
+        JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
+        payloadJSONObject.put("username", "admin");
+        clonedJWTHolder.setPayload(payloadJSONObject.toString());
+
+        if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
+            return false;
+        }
+
+        if (verifyJWTToken(cloneJWTHolder.getBase64EncodedToken(), serverSideAttack)) {
+            raiseAlert(
+                    MESSAGE_PREFIX,
+                    VulnerabilityType.NULL_BYTE,
+                    Alert.RISK_HIGH,
+                    Alert.CONFIDENCE_HIGH,
+                    cloneJWTHolder.getBase64EncodedToken(),
+                    serverSideAttack);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Adds Null Byte to the signature to checks if JWT is vulnerable to Null Byte injection. Main
      * gist of attack is say validator is vulnerable to null byte hence if anything is appended
@@ -362,7 +391,8 @@ public class SignatureAttack implements JWTAttack {
             return this.executeCustomPrivateKeySignedJWTTokenAttack()
                     || this.executeAlgoKeyConfusionAttack()
                     || this.executeNullByteAttack()
-                    || this.executePubliclyWellKnownHMacSecretAttack();
+                    || this.executePubliclyWellKnownHMacSecretAttack()
+                    || this.executeIncorrectSignatureAttack();
         } catch (JWTException e) {
             LOGGER.error("An error occurred while getting signed manipulated tokens", e);
         }
