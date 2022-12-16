@@ -147,10 +147,6 @@ public class SignatureAttack implements JWTAttack {
 
     private boolean executeIncorrectSignatureAttack() {
         JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
-        if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
-            return false;
-        }
-
         JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
         payloadJSONObject.put("username", "admin");
         clonedJWTHolder.setPayload(payloadJSONObject.toString());
