@@ -143,8 +143,11 @@ public class SignatureAttack implements JWTAttack {
         return false;
     }
 
-
-
+    /**
+     * Mis-matching the token signature and token data, to verify if the JWT implementation verifies the signature properly.
+     * A malicious user can exploit this vulnerability by supplying an arbitrary claim in the JWT payload to obtain 
+     * new privileges or impersonate other users
+     */
     private boolean executeIncorrectSignatureAttack() {
         JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
         JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
