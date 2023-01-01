@@ -149,7 +149,7 @@ public class SignatureAttack implements JWTAttack {
         JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
         JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
         payloadJSONObject.put("username", "admin");
-        clonedJWTHolder.setPayload(payloadJSONObject.toString());
+        cloneJWTHolder.setPayload(payloadJSONObject.toString());
 
         if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
             return false;
@@ -158,7 +158,7 @@ public class SignatureAttack implements JWTAttack {
         if (verifyJWTToken(cloneJWTHolder.getBase64EncodedToken(), serverSideAttack)) {
             raiseAlert(
                     MESSAGE_PREFIX,
-                    VulnerabilityType.NULL_BYTE,
+                    VulnerabilityType.INCORRECT_SIGNATURE,
                     Alert.RISK_HIGH,
                     Alert.CONFIDENCE_HIGH,
                     cloneJWTHolder.getBase64EncodedToken(),
@@ -385,10 +385,10 @@ public class SignatureAttack implements JWTAttack {
         this.serverSideAttack = serverSideAttack;
         try {
             return this.executeCustomPrivateKeySignedJWTTokenAttack()
+                    || this.executeIncorrectSignatureAttack()
                     || this.executeAlgoKeyConfusionAttack()
                     || this.executeNullByteAttack()
-                    || this.executePubliclyWellKnownHMacSecretAttack()
-                    || this.executeIncorrectSignatureAttack();
+                    || this.executePubliclyWellKnownHMacSecretAttack();
         } catch (JWTException e) {
             LOGGER.error("An error occurred while getting signed manipulated tokens", e);
         }
