@@ -76,6 +76,9 @@ public class SignatureAttack implements JWTAttack {
 
     private static final String MESSAGE_PREFIX =
             "jwt.scanner.server.vulnerability.signatureAttack.";
+    private static final String INCORRECT_SIGNATURE_KEY = "username";
+    private static final String INCORRECT_SIGNATURE_VALUE = "admin";
+
     private ServerSideAttack serverSideAttack;
 
     /**
@@ -147,28 +150,37 @@ public class SignatureAttack implements JWTAttack {
      * Mis-matching the token signature and token data, to verify if the JWT implementation verifies the signature properly.
      * A malicious user can exploit this vulnerability by supplying an arbitrary claim in the JWT payload to obtain 
      * new privileges or impersonate other users
+     *
+     * @throws JWTException
      */
     private boolean executeIncorrectSignatureAttack() {
-        JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
-        JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
-        payloadJSONObject.put("username", "admin");
-        cloneJWTHolder.setPayload(payloadJSONObject.toString());
+        try {
+            JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
+            JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
+            payloadJSONObject.put(INCORRECT_SIGNATURE_KEY, INCORRECT_SIGNATURE_VALUE);
+            cloneJWTHolder.setPayload(payloadJSONObject.toString());
 
-        if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
+            if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
+                return false;
+            }
+
+            if (verifyJWTToken(cloneJWTHolder.getBase64EncodedToken(), serverSideAttack)) {
+                raiseAlert(
+                        MESSAGE_PREFIX,
+                        VulnerabilityType.INCORRECT_SIGNATURE,
+                        Alert.RISK_HIGH,
+                        Alert.CONFIDENCE_HIGH,
+                        cloneJWTHolder.getBase64EncodedToken(),
+                        serverSideAttack);
+                return true;
+            }
             return false;
         }
-
-        if (verifyJWTToken(cloneJWTHolder.getBase64EncodedToken(), serverSideAttack)) {
-            raiseAlert(
-                    MESSAGE_PREFIX,
-                    VulnerabilityType.INCORRECT_SIGNATURE,
-                    Alert.RISK_HIGH,
-                    Alert.CONFIDENCE_HIGH,
-                    cloneJWTHolder.getBase64EncodedToken(),
-                    serverSideAttack);
-            return true;
+        catch (JSONException ex) {
+            throw new JWTException(
+                    "An exception occurred while getting manipulated token for incorrect signature",
+                    ex);
         }
-        return false;
     }
 
     /**
