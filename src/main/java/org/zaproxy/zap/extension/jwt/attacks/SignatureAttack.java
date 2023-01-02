@@ -53,6 +53,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.json.JSONException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -76,8 +77,8 @@ public class SignatureAttack implements JWTAttack {
 
     private static final String MESSAGE_PREFIX =
             "jwt.scanner.server.vulnerability.signatureAttack.";
-    private static final String INCORRECT_SIGNATURE_KEY = "username";
-    private static final String INCORRECT_SIGNATURE_VALUE = "admin";
+    private static final String INCORRECT_SIGNATURE_PAYLOAD_KEY = "username";
+    private static final String INCORRECT_SIGNATURE_PAYLOAD_VALUE = "admin";
 
     private ServerSideAttack serverSideAttack;
 
@@ -157,8 +158,8 @@ public class SignatureAttack implements JWTAttack {
         try {
             JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
             JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
-            payloadJSONObject.put(INCORRECT_SIGNATURE_KEY, INCORRECT_SIGNATURE_VALUE);
-            cloneJWTHolder.setPayload(payloadJSONObject.toString());
+            payloadJSONObject.put(INCORRECT_SIGNATURE_PAYLOAD_KEY, INCORRECT_SIGNATURE_PAYLOAD_VALUE);
+            cloneJWTHolder.setPayload(payloadJSONObje_PAYLOADct.toString());
 
             if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
                 return false;
@@ -177,9 +178,8 @@ public class SignatureAttack implements JWTAttack {
             return false;
         }
         catch (JSONException ex) {
-            throw new JWTException(
-                    "An exception occurred while getting manipulated token for incorrect signature",
-                    ex);
+            LOGGER.error("An error occurred while incorrect signature attack", ex);
+            return false;
         }
     }
 
