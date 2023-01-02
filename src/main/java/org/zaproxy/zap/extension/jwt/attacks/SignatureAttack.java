@@ -53,6 +53,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.json.JSONException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -76,6 +77,9 @@ public class SignatureAttack implements JWTAttack {
 
     private static final String MESSAGE_PREFIX =
             "jwt.scanner.server.vulnerability.signatureAttack.";
+    private static final String INCORRECT_SIGNATURE_PAYLOAD_KEY = "username";
+    private static final String INCORRECT_SIGNATURE_PAYLOAD_VALUE = "admin";
+
     private ServerSideAttack serverSideAttack;
 
     /**
@@ -141,6 +145,42 @@ public class SignatureAttack implements JWTAttack {
             }
         }
         return false;
+    }
+
+    /**
+     * Mis-matching the token signature and token data, to verify if the JWT implementation verifies the signature properly.
+     * A malicious user can exploit this vulnerability by supplying an arbitrary claim in the JWT payload to obtain 
+     * new privileges or impersonate other users
+     *
+     * @throws JWTException
+     */
+    private boolean executeIncorrectSignatureAttack() {
+        try {
+            JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
+            JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
+            payloadJSONObject.put(INCORRECT_SIGNATURE_PAYLOAD_KEY, INCORRECT_SIGNATURE_PAYLOAD_VALUE);
+            cloneJWTHolder.setPayload(payloadJSONObject.toString());
+
+            if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
+                return false;
+            }
+
+            if (verifyJWTToken(cloneJWTHolder.getBase64EncodedToken(), serverSideAttack)) {
+                raiseAlert(
+                        MESSAGE_PREFIX,
+                        VulnerabilityType.INCORRECT_SIGNATURE,
+                        Alert.RISK_HIGH,
+                        Alert.CONFIDENCE_HIGH,
+                        cloneJWTHolder.getBase64EncodedToken(),
+                        serverSideAttack);
+                return true;
+            }
+            return false;
+        }
+        catch (JSONException ex) {
+            LOGGER.error("An error occurred while incorrect signature attack", ex);
+            return false;
+        }
     }
 
     /**
@@ -360,6 +400,7 @@ public class SignatureAttack implements JWTAttack {
         this.serverSideAttack = serverSideAttack;
         try {
             return this.executeCustomPrivateKeySignedJWTTokenAttack()
+                    || this.executeIncorrectSignatureAttack()
                     || this.executeAlgoKeyConfusionAttack()
                     || this.executeNullByteAttack()
                     || this.executePubliclyWellKnownHMacSecretAttack();
