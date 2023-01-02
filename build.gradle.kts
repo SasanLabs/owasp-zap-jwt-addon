@@ -33,7 +33,7 @@ tasks.compileJava {
     dependsOn("spotlessApply")
 }
 
-version = "1.0.2"
+version = "1.0.3"
 description = "Detect JWT requests and scan them to find related vulnerabilities"
 
 zapAddOn {
