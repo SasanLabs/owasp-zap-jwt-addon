@@ -52,8 +52,8 @@ import java.text.ParseException;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -148,9 +148,9 @@ public class SignatureAttack implements JWTAttack {
     }
 
     /**
-     * Mis-matching the token signature and token data, to verify if the JWT implementation verifies the signature properly.
-     * A malicious user can exploit this vulnerability by supplying an arbitrary claim in the JWT payload to obtain 
-     * new privileges or impersonate other users
+     * Mis-matching the token signature and token data, to verify if the JWT implementation verifies
+     * the signature properly. A malicious user can exploit this vulnerability by supplying an
+     * arbitrary claim in the JWT payload to obtain new privileges or impersonate other users
      *
      * @throws JWTException
      */
@@ -158,7 +158,8 @@ public class SignatureAttack implements JWTAttack {
         try {
             JWTHolder cloneJWTHolder = new JWTHolder(this.serverSideAttack.getJwtHolder());
             JSONObject payloadJSONObject = new JSONObject(cloneJWTHolder.getPayload());
-            payloadJSONObject.put(INCORRECT_SIGNATURE_PAYLOAD_KEY, INCORRECT_SIGNATURE_PAYLOAD_VALUE);
+            payloadJSONObject.put(
+                    INCORRECT_SIGNATURE_PAYLOAD_KEY, INCORRECT_SIGNATURE_PAYLOAD_VALUE);
             cloneJWTHolder.setPayload(payloadJSONObject.toString());
 
             if (this.serverSideAttack.getJwtActiveScanRule().isStop()) {
@@ -176,8 +177,7 @@ public class SignatureAttack implements JWTAttack {
                 return true;
             }
             return false;
-        }
-        catch (JSONException ex) {
+        } catch (JSONException ex) {
             LOGGER.error("An error occurred while incorrect signature attack", ex);
             return false;
         }
