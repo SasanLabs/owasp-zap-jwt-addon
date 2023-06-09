@@ -22,6 +22,7 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.jwt.attacks.ClientSideAttack;
 import org.zaproxy.zap.extension.jwt.attacks.ServerSideAttack;
 import org.zaproxy.zap.extension.jwt.exception.JWTException;
@@ -214,7 +215,10 @@ public class JWTActiveScanRule extends AbstractAppParamPlugin {
             this.sendAndReceive(newMsg, false);
             if (newMsg.getResponseHeader().getStatusCode()
                             == msg.getResponseHeader().getStatusCode()
-                    && newMsg.getResponseBody().equals(msg.getResponseBody())) {
+                    && newMsg.getResponseBody().equals(msg.getResponseBody())
+                    && !msg.getResponseHeader().isJavaScript()
+                    && !msg.getResponseHeader().isCss()
+                    && msg.getResponseHeader().getStatusCode() != HttpStatusCode.NOT_FOUND) {
                 return true;
             }
         } catch (IOException e) {

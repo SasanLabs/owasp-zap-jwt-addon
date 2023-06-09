@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Unreleased
 
+### Changed
+ - Added checks to not raise alerts in CSS, JavaScript or 404 status code pages.
 
 ### [1.0.3] - 2023-01-01
  - Ensure i18n resources are always initialized.
