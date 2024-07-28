@@ -71,32 +71,44 @@ public class JWTMessageLocation extends DefaultTextHttpMessageLocation implement
         this.fuzzerJWTSignatureOperation = fuzzerJWTSignatureOperation;
     }
 
-    /** @return JSON Object's Key field */
+    /**
+     * @return JSON Object's Key field
+     */
     public String getKey() {
         return key;
     }
 
-    /** @param key JSON Object's Key field */
+    /**
+     * @param key JSON Object's Key field
+     */
     public void setKey(String key) {
         this.key = key;
     }
 
-    /** @return true of Key field is present in Header */
+    /**
+     * @return true of Key field is present in Header
+     */
     public boolean isHeaderField() {
         return isHeaderField;
     }
 
-    /** @param isHeaderField */
+    /**
+     * @param isHeaderField
+     */
     public void setHeaderField(boolean isHeaderField) {
         this.isHeaderField = isHeaderField;
     }
 
-    /** @return FuzzerJWTSignatureOperation */
+    /**
+     * @return FuzzerJWTSignatureOperation
+     */
     public FuzzerJWTSignatureOperation getFuzzerJWTSignatureOperation() {
         return fuzzerJWTSignatureOperation;
     }
 
-    /** @param fuzzerJWTSignatureOperation */
+    /**
+     * @param fuzzerJWTSignatureOperation
+     */
     public void setFuzzerJWTSignatureOperation(
             FuzzerJWTSignatureOperation fuzzerJWTSignatureOperation) {
         this.fuzzerJWTSignatureOperation = fuzzerJWTSignatureOperation;

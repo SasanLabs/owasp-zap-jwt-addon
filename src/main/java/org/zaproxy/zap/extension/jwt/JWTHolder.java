@@ -45,37 +45,51 @@ public class JWTHolder {
         this.signature = jwtHolder.getSignature();
     }
 
-    /** @return Header without base64 encoding */
+    /**
+     * @return Header without base64 encoding
+     */
     public String getHeader() {
         return header;
     }
 
-    /** @param header without base64 encoding */
+    /**
+     * @param header without base64 encoding
+     */
     public void setHeader(String header) {
         this.header = header;
     }
 
-    /** @return Payload without base64 encoding */
+    /**
+     * @return Payload without base64 encoding
+     */
     public String getPayload() {
         return payload;
     }
 
-    /** @param payload without base64 encoding */
+    /**
+     * @param payload without base64 encoding
+     */
     public void setPayload(String payload) {
         this.payload = payload;
     }
 
-    /** @return Signature without base64 encoding */
+    /**
+     * @return Signature without base64 encoding
+     */
     public byte[] getSignature() {
         return signature;
     }
 
-    /** @param signature without base64 encoding */
+    /**
+     * @param signature without base64 encoding
+     */
     public void setSignature(byte[] signature) {
         this.signature = signature;
     }
 
-    /** @return algorithm value from Header */
+    /**
+     * @return algorithm value from Header
+     */
     public String getAlgorithm() {
         JSONObject headerJSONObject = new JSONObject(this.getHeader());
         return headerJSONObject.getString(JWT_ALGORITHM_KEY_HEADER);
@@ -101,7 +115,9 @@ public class JWTHolder {
                 + base64EncodedSignature;
     }
 
-    /** @return token to be Signed i.e. base64EncodedHeader.base64EncodedPayload */
+    /**
+     * @return token to be Signed i.e. base64EncodedHeader.base64EncodedPayload
+     */
     public String getBase64EncodedTokenWithoutSignature() {
         String base64EncodedHeader = JWTUtils.getBase64UrlSafeWithoutPaddingEncodedString(header);
         String base64EncodedPayload = JWTUtils.getBase64UrlSafeWithoutPaddingEncodedString(payload);
