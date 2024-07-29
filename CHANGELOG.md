@@ -4,6 +4,8 @@ All notable changes to this add-on will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Unreleased
+ - Upgraded spotless version
+ - Added vscode launch.json
 
 ### Changed
  - Added checks to not raise alerts in CSS, JavaScript or 404 status code pages.
