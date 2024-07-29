@@ -77,6 +77,7 @@ public interface JWTAttack {
                                 messagePrefix + vulnerabilityType.getMessageKey() + ".soln"),
                         serverSideAttack.getMsg());
     }
+
     /**
      * Manipulates the JWT token, executes an attack, and also raise alert if successful.
      *

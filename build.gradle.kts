@@ -5,7 +5,7 @@ import org.zaproxy.gradle.addon.misc.CreateGitHubRelease
 import org.zaproxy.gradle.addon.misc.ExtractLatestChangesFromChangelog
 
 plugins {
-    id("com.diffplug.spotless") version "5.17.1"
+    id("com.diffplug.spotless") version "6.25.0"
     id("com.github.ben-manes.versions") version "0.39.0"
     `java-library`
     id("org.zaproxy.add-on") version "0.7.0"
@@ -16,8 +16,8 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 spotless {
