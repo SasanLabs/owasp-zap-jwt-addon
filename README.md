@@ -1,4 +1,4 @@
-# owasp-zap-jwt-addon 
+# ZAP JWT Add-on
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![](https://img.shields.io/github/v/release/SasanLabs/owasp-zap-jwt-addon?style=flat) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) ![Java CI with Gradle](https://github.com/SasanLabs/owasp-zap-jwt-addon/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master) [![](https://img.shields.io/twitter/follow/sasan_karan?style=flat&logo=twitter)](https://twitter.com/intent/follow?screen_name=sasan_karan)
 
 This Project contains the JWT Scanner and JWT Fuzzer addon used for finding JWT related vulnerabilities.
@@ -60,7 +60,7 @@ Contributing guidelines are same as [ZAP](https://github.com/zaproxy/zaproxy).
 For enhancing/developing or debugging the Addon: [video tutorial](https://www.youtube.com/watch?v=1AlacNHHaFg&t=1s)
 
 ## Contact Us
-For any Queries/Bugs or Enhancement please raise an issue in this repository or ask in [OWASP ZAP Developer Group](https://groups.google.com/g/zaproxy-develop).
+For any Queries/Bugs or Enhancement please raise an issue in this repository or ask in [ZAP Developer Group](https://groups.google.com/g/zaproxy-develop).
 For any other kind of issues please send an email to karan.sasan@owasp.org
 
 ## Technical Blog
